@@ -1,3 +1,6 @@
 RBE 3002 Packages   
 
-This repository belongs in the src directory of your catkin workspace. 
+Before cloning this repository, create a YellowJeep folder in the src directory
+of your catkin_ws, then clone the repository inside YellowJeep. This is to avoid
+ issues with the CMakeLists.txt file that belongs in the src directory. roscd, 
+ rosls, etc. will continue to work.
