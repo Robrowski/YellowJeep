@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 	message_generation
 	geometry_msgs
 	kobuki_msgs
+	roslib
 )
 
 ## System dependencies are found with CMake's conventions
@@ -86,7 +87,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES robertpdabrowski_lab2
-#  CATKIN_DEPENDS other_catkin_pkg
+   CATKIN_DEPENDS message_runtime 
 #  DEPENDS system_lib
 )
 
