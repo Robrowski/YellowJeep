@@ -450,7 +450,7 @@ alias py='chmod +x *.py' # make all scripts executable
 
 
 # ROS aliases
-alias build='cd ~/catkin_ws ; catkin_make'
+alias build='ros-build-workspace'
 alias bag='rosbag record -o'
 alias topic_graph='rosrun rqt_graph rqt_graph'
 alias save_map='cd ~/catkin_ws/maps; rosrun map_server map_saver -f'
@@ -483,9 +483,9 @@ alias pull='git pull origin'
 #            ["hulk"]="192.168.1.2"
 #         ["ironman"]="192.168.1.3"
 #  ["captainamerica"]="192.168.1.4"
-#  ["thor"]="192.168.1.5"
-# ["hawkeye"]="192.168.1.6" works
-#  ["blackwidow"]   works
+#  		 ["thor"]="192.168.1.5"
+# 	    ["hawkeye"]="192.168.1.6" works
+#      ["blackwidow"]="192.168.1.7" works
 
 
 function turtleLogin(){
