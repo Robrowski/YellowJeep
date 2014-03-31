@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-from math import degrees, radians
-
-
 
 ##############################################################################
 # Ros Imports
@@ -61,8 +58,6 @@ def calcDistance(start, dst):
     return math.sqrt( math.pow(dst.position.x - start.position.x,2) + math.pow(dst.position.y - start.position.y,2))
 
 
-
-
 #This function accepts a speed and a distance for the robot to move in a straight line
 def driveStraight(speed, distance):
     global current_pose
@@ -71,41 +66,78 @@ def driveStraight(speed, distance):
     r = rospy.Rate(10) # 10hz
     timePassed = 0.0
     
-    while not rospy.is_shutdown() and calcDistance(start_pose, current_pose) < distance:
-       sendTwist(speed, 0)
+    while not rospy.is_shutdown() and math.fabs(calcDistance(start_pose, current_pose) - distance) > .05:
+       sendTwist(math.copysign(speed, distance), 0)
        timePassed += 0.1;
        r.sleep()
     
-    
-    
-
     
 #Accepts an angle and makes the robot rotate around it.
 def rotate(angle):
     global current_theta
-    start_theta = current_theta
+   
+    goal_theta =  current_theta + angle
+
+    # make sure goal theta is within bounds 
+    if goal_theta > math.pi:
+        goal_theta -= 2*math.pi
+        
+    if goal_theta < -math.pi:    
+        goal_theta += 2*math.pi
     
     r = rospy.Rate(10) # 10hz
-    timePassed = 0.0
-    
-    while not rospy.is_shutdown() and  (current_theta - start_theta )  < angle:
-       sendTwist(0, .1)
-       timePassed += 0.1;
+    while not rospy.is_shutdown() and  math.fabs(current_theta - goal_theta )  > math.pi/100  :
+  
+       sendTwist(0, math.copysign(.4, angle))
        r.sleep()
     
-
+    sendTwist(0,0)#stop
 
 
 #This function works the same as rotate how ever it does not publish linear velocities.
 def driveArc(radius, speed, angle):
-    pass  # Delete this 'pass' once implemented
+    global current_theta
+    goal_theta =  current_theta + angle
+    angular_velocity = math.copysign(speed/radius, angle)
 
-
+    # make sure goal theta is within bounds 
+    if goal_theta > math.pi:
+        goal_theta -= 2*math.pi
+        
+    if goal_theta < -math.pi:    
+        goal_theta += 2*math.pi
+    
+    r = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown() and  math.fabs(current_theta - goal_theta )  > math.pi/100  :
+  
+        sendTwist(speed, angular_velocity)
+        r.sleep
+    sendTwist(0,0)#stop
 
 #This function sequentially calls methods to perform a trajectory.
 def executeTrajectory():
-    pass  # Delete this 'pass' once implemented
-
+    print "Driving Straight 60cm"
+    driveStraight(.2,.6)
+     
+    print "rotating right 90 degrees"
+    rotate(-math.pi/2)
+    
+    print "-180 degree arc, radius = .15cm"
+    driveArc(.15, .2, -math.pi)
+    
+    print "rotating"
+    rotate(135*math.pi/180)
+  
+    print "Driving Straight 42cm"
+    driveStraight(.2,.42)
+   
+    rospy.sleep(rospy.Duration(.5, 0))
+    print "restarting"
+    rotate(45*math.pi/180)
+    driveStraight(.2,-.3)
+    rotate(90*math.pi/180)
+  
+        
 
 
 #Odometry Callback function.
@@ -125,8 +157,7 @@ def read_odometry(data):
 #Bumper Event Callback function
 def readBumper(msg):
     if (msg.state == 1):
-        # What should happen when the bumper is pressed?
-        pass  # Delete this 'pass' once implemented
+        executeTrajectory()
 
 
 
@@ -134,9 +165,9 @@ def readBumper(msg):
 # Start the timer with the following line of code: 
 #   rospy.Timer(rospy.Duration(.01), timerCallback)
 def timerCallback(event):
-	pass # Delete this 'pass' once implemented
-
-
+	pass  # Delete this 'pass' once implemented
+  
+   
 
 
 
@@ -157,58 +188,21 @@ if __name__ == '__main__':
     #  to gain access to these global variables
     
     global pub
-    global pose
     global odom_tf
     global odom_list
-    global current_pose
-    
+   
     pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist) # Publisher for commanding robot 
     sub = rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) # Callback function to read in robot Odometry messages
-    
-# https://github.com/yujinrobot/kobuki/blob/hydro-devel/kobuki_testsuite/src/kobuki_testsuite/motion_wander.py
-#    odom_subscriber = rospy.Subscriber(odom_topic, Odometry, read_odometry)
- 
- 
- #   bumper_sub = rospy.Subscriber('...', ..., readBumper, queue_size=1) # Callback for bumper events
-
-    # Use this object to get the robot's Odometry 
-    # why is this here!?
- #   odom_list = tf.TransformListener()
-    
-    # Use this command to make the program wait for some seconds
-    rospy.sleep(rospy.Duration(1, 0))
+    bumper_sub = rospy.Subscriber('/mobile_base/events/bumper', BumperEvent, readBumper, queue_size=1) # Callback for bumper events
 
 
-    print "Starting Lab 2"
-  #  print "Spinning kinda"
-  #  spinWheels(5, .7, 3)
-    
-   
-   # print "Driving Straight"
-    #driveStraight(.3,1)
-   
-    print "rotating"
-    rotate(math.pi)
-   
-    print "Lab 2 complete!"
-   
-'''
-    try:
-    	print "Publishing to make robot drive in a circle..."
-    	r = rospy.Rate(10) # 10hz
-    	while not rospy.is_shutdown():
-    		pub.publish(makeTwist(0.2,.2))
-        	r.sleep()
-    	
-    except:
-    	print e
-    
-    finally:
-    # publish a stop command
-    	print "Finally.. crap"
-    	pub.publish(makeTwist(0,0))
   
-'''
 
+
+    rospy.sleep(rospy.Duration(.5, 0))
+    
+    executeTrajectory()
+    
+    rospy.spin()
 
 
