@@ -1,11 +1,16 @@
 #!/usr/bin/env python
+from math import degrees, radians
 
-import rospy, tf 
-from kobuki_msgs.msg import BumperEvent
+
+
+##############################################################################
+# Ros Imports
+##############################################################################
+import rospy, tf, math
 from geometry_msgs.msg import Twist
-#from std_msgs.msg import String
-
-
+from nav_msgs.msg import Odometry
+from kobuki_msgs.msg import BumperEvent, CliffEvent
+from tf.transformations import euler_from_quaternion
 
 
 
@@ -25,34 +30,69 @@ def wheelSpeedToTwist(u1, u2):
 	return makeTwist(translational, angular)
 
 
+def sendTwist(forward, angular):
+    global pub
+    pub.publish(makeTwist(forward,angular))
+
+
+def sendWheelVelocities(u1, u2):
+    newTwist = wheelSpeedToTwist(u1,u2)
+    sendTwist(newTwist.linear.x, newTwist.angular.z)
+
+
+
 #This function accepts two wheel velocities and a time interval.
 def spinWheels(u1, u2, time):
-    global pub
       
-    pub.publish(wheelSpeedToTwist(u1,u2))
+    sendWheelVelocities(u1,u2)
     
     r = rospy.Rate(10) # 10hz
     timePassed = 0.0
     
     while not rospy.is_shutdown() and timePassed < time:
-        pub.publish(wheelSpeedToTwist(u1,u2))
+        sendWheelVelocities(u1,u2)
         timePassed += 0.1;
        	r.sleep()
      
-    pub.publish(makeTwist(0,0))#stop
+    sendTwist(0,0)#stop
 	
+
+def calcDistance(start, dst):
+    return math.sqrt( math.pow(dst.position.x - start.position.x,2) + math.pow(dst.position.y - start.position.y,2))
+
+
 
 
 #This function accepts a speed and a distance for the robot to move in a straight line
 def driveStraight(speed, distance):
+    global current_pose
+    start_pose = current_pose
     
-    pass  # Delete this 'pass' once implemented
-
+    r = rospy.Rate(10) # 10hz
+    timePassed = 0.0
+    
+    while not rospy.is_shutdown() and calcDistance(start_pose, current_pose) < distance:
+       sendTwist(speed, 0)
+       timePassed += 0.1;
+       r.sleep()
+    
+    
+    
 
     
 #Accepts an angle and makes the robot rotate around it.
 def rotate(angle):
-    pass  # Delete this 'pass' once implemented
+    global current_theta
+    start_theta = current_theta
+    
+    r = rospy.Rate(10) # 10hz
+    timePassed = 0.0
+    
+    while not rospy.is_shutdown() and  (current_theta - start_theta )  < angle:
+       sendTwist(0, .1)
+       timePassed += 0.1;
+       r.sleep()
+    
 
 
 
@@ -69,9 +109,17 @@ def executeTrajectory():
 
 
 #Odometry Callback function.
-def read_odometry(msg):
-    pass  # Delete this 'pass' once implemented
-  
+def read_odometry(data):
+    global current_pose
+    global current_theta
+    current_pose = data.pose.pose
+    
+    quat = data.pose.pose.orientation
+    q = [quat.x, quat.y, quat.z, quat.w]
+    roll, pitch, yaw = euler_from_quaternion(q)
+    current_theta = yaw
+    
+    
 
 
 #Bumper Event Callback function
@@ -112,22 +160,36 @@ if __name__ == '__main__':
     global pose
     global odom_tf
     global odom_list
-
+    global current_pose
+    
     pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist) # Publisher for commanding robot 
-    sub = rospy.Subscriber('...', ..., read_odometry, queue_size=1) # Callback function to read in robot Odometry messages
-
- #   bumper_sub = rospy.Subscriber('...', ..., readBumper, queue_size=1) # Callback function to handle bumper events
+    sub = rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) # Callback function to read in robot Odometry messages
+    
+# https://github.com/yujinrobot/kobuki/blob/hydro-devel/kobuki_testsuite/src/kobuki_testsuite/motion_wander.py
+#    odom_subscriber = rospy.Subscriber(odom_topic, Odometry, read_odometry)
+ 
+ 
+ #   bumper_sub = rospy.Subscriber('...', ..., readBumper, queue_size=1) # Callback for bumper events
 
     # Use this object to get the robot's Odometry 
-    odom_list = tf.TransformListener()
+    # why is this here!?
+ #   odom_list = tf.TransformListener()
     
     # Use this command to make the program wait for some seconds
     rospy.sleep(rospy.Duration(1, 0))
 
 
     print "Starting Lab 2"
-    spinWheels(1, .1, 10)
+  #  print "Spinning kinda"
+  #  spinWheels(5, .7, 3)
     
+   
+   # print "Driving Straight"
+    #driveStraight(.3,1)
+   
+    print "rotating"
+    rotate(math.pi)
+   
     print "Lab 2 complete!"
    
 '''
