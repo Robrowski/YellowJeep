@@ -1,152 +1,182 @@
 #!/usr/bin/env python
 
-import rospy, tf 
-from kobuki_msgs.msg import BumperEvent
+##############################################################################
+# Ros Imports
+##############################################################################
+import rospy, math
 from geometry_msgs.msg import Twist
-#from std_msgs.msg import String
+from nav_msgs.msg import Odometry
+from kobuki_msgs.msg import BumperEvent
+from tf.transformations import euler_from_quaternion
 
-
-
-
-
+##############################################################################
+# Twist Helpers... what a twist!
+##############################################################################
 # Helper function to make a Twist object with the given vlaues
-def makeTwist( speed, rotation):
+def makeTwist( forwardVelocity, angularVelocity):
     twist = Twist()
-    twist.linear.x = speed; twist.linear.y = 0; twist.linear.z = 0
-    twist.angular.x = 0; twist.angular.y = 0; twist.angular.z = rotation
+    
+    # Set Default values
+    twist.linear.y = 0; twist.linear.z = 0
+    twist.angular.x = 0; twist.angular.y = 0; 
+      
+    # Set Given values
+    twist.linear.x = forwardVelocity; 
+    twist.angular.z = angularVelocity;
+  
     return twist
 
-# Converts wheel velocities to robot forward and angular velocities
-# exports in m/s
+# Converts wheel velocities to robot forward and angular velocities in a Twist
 def wheelSpeedToTwist(u1, u2): 	
-	global wheelBase, wheelRadius
-	angular = (wheelRadius/wheelBase)*(u1-u2)
-	translational = wheelRadius/2*(u1 + u2)
-	return makeTwist(translational, angular)
+    cm_in_meter = 100.0;
+    wheelRadius = 3.5/cm_in_meter; #3.5cm
+    wheelBase   =  23.0/cm_in_meter;  #23cm
+    
+    angularVelocity = (wheelRadius/wheelBase)*(u1-u2)
+    forwardVelocity = wheelRadius/2*(u1 + u2)
+    return makeTwist(forwardVelocity, angularVelocity)
+
+# Sends the given values in a Twist to the topic
+def sendTwist(forwardVelocity, angularVelocity):
+    global pub
+    pub.publish(makeTwist(forwardVelocity,angularVelocity))
+
+# Sends the given values to the topic after converting to Twist
+def sendWheelVelocities(u1, u2):
+    newTwist = wheelSpeedToTwist(u1,u2)
+    sendTwist(newTwist.linear.x, newTwist.angular.z)
+
+##############################################################################
+# Random Helpers
+##############################################################################
+# Calculates the magnitude of the distance between two points in the x-y plane
+def calcDistance(start, dst):
+    return math.sqrt( math.pow(dst.position.x - start.position.x,2) + math.pow(dst.position.y - start.position.y,2))
 
 
+##############################################################################
+# Lab 2 Functions
+##############################################################################
 #This function accepts two wheel velocities and a time interval.
 def spinWheels(u1, u2, time):
-    global pub
-      
-    pub.publish(wheelSpeedToTwist(u1,u2))
+    r = rospy.Rate(10) # 10hz
+    timePassed = 0.0
+    
+    # Send the command to move at the given speed until time is up
+    while not rospy.is_shutdown() and timePassed < time:
+       sendWheelVelocities(u1,u2)
+       timePassed += 0.1;
+       r.sleep()
+     
+    sendTwist(0,0)#stop
+
+#Takes a speed and a distance for the robot to move in a straight line
+def driveStraight(speed, distance):
+    global current_pose
+    start_pose = current_pose
     
     r = rospy.Rate(10) # 10hz
     timePassed = 0.0
     
-    while not rospy.is_shutdown() and timePassed < time:
-        pub.publish(wheelSpeedToTwist(u1,u2))
-        timePassed += 0.1;
-       	r.sleep()
-     
-    pub.publish(makeTwist(0,0))#stop
+    while not rospy.is_shutdown() and math.fabs(calcDistance(start_pose, current_pose) - distance) > .05:
+       sendTwist(math.copysign(speed, distance), 0)
+       timePassed += 0.1;
+       r.sleep()
+    sendTwist(0,0)#stop 
 	
-
-
-#This function accepts a speed and a distance for the robot to move in a straight line
-def driveStraight(speed, distance):
-    
-    pass  # Delete this 'pass' once implemented
-
-
-    
 #Accepts an angle and makes the robot rotate around it.
 def rotate(angle):
-    pass  # Delete this 'pass' once implemented
+    global current_theta
+   
+    goal_theta =  current_theta + angle
 
+    # make sure goal theta is within bounds of +/- pi
+    if goal_theta > math.pi:
+        goal_theta -= 2*math.pi
+        
+    if goal_theta < -math.pi:    
+        goal_theta += 2*math.pi
+    
+    # Rotate in optimal direction until at setpoint
+    r = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown() and  math.fabs(current_theta - goal_theta )  > math.pi/100  : 
+       sendTwist(0, math.copysign(.4, angle))
+       r.sleep()
+    
+    sendTwist(0,0)#stop
 
 
 #This function works the same as rotate how ever it does not publish linear velocities.
 def driveArc(radius, speed, angle):
-    pass  # Delete this 'pass' once implemented
+    global current_theta
+    goal_theta =  current_theta + angle
+    angular_velocity = math.copysign(speed/radius, angle)
 
-
+    # make sure goal theta is within bounds 
+    if goal_theta > math.pi:
+        goal_theta -= 2*math.pi
+        
+    if goal_theta < -math.pi:    
+        goal_theta += 2*math.pi
+    
+    # Arc until desired rotation is achieved #todo make robust
+    r = rospy.Rate(10) # 10hz
+    while not rospy.is_shutdown() and  math.fabs(current_theta - goal_theta )  > math.pi/100  :
+        sendTwist(speed, angular_velocity)
+        r.sleep
+    sendTwist(0,0)#stop
 
 #This function sequentially calls methods to perform a trajectory.
 def executeTrajectory():
-    pass  # Delete this 'pass' once implemented
-
-
+    print "Driving Straight 60cm"
+    driveStraight(.2,.6)
+     
+    print "rotating right 90 degrees"
+    rotate(-math.pi/2)
+    
+    print "-180 degree arc, radius = .15cm"
+    driveArc(.15, .2, -math.pi)
+    
+    print "rotating"
+    rotate(135*math.pi/180)
+  
+    print "Driving Straight 42cm"
+    driveStraight(.2,.42)
+   
+    print "DONE!"        
 
 #Odometry Callback function.
-def read_odometry(msg):
-    pass  # Delete this 'pass' once implemented
-  
-
+def read_odometry(data):
+    global current_pose
+    global current_theta
+    current_pose = data.pose.pose
+    
+    quat = data.pose.pose.orientation # gota convert them quats
+    q = [quat.x, quat.y, quat.z, quat.w]
+    roll, pitch, current_theta = euler_from_quaternion(q)
+     
 
 #Bumper Event Callback function
 def readBumper(msg):
     if (msg.state == 1):
-        # What should happen when the bumper is pressed?
-        pass  # Delete this 'pass' once implemented
+        executeTrajectory()
 
-
-
-# (Optional) If you need something to happen repeatedly at a fixed interval, write the code here.
-# Start the timer with the following line of code: 
-#   rospy.Timer(rospy.Duration(.01), timerCallback)
-def timerCallback(event):
-	pass # Delete this 'pass' once implemented
-
-
-
-
-
-
+   
 # This is the program's main function
 if __name__ == '__main__':
     
     # Change this node name to include your username
     rospy.init_node('rpdabrowski_Lab_2_node', anonymous=True)
     
-    global wheelBase
-    global wheelRadius
-    cm_in_meter = 100.0;
-    wheelRadius = 3.5/cm_in_meter; #3.5cm
-    wheelBase   =  23.0/cm_in_meter;  #23cm
-    
-    # These are global variables. Write "global <variable_name>" in any other function
-    #  to gain access to these global variables
-    
+    # Publisher for commanding robot
     global pub
-    global pose
-    global odom_tf
-    global odom_list
-
-    pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist) # Publisher for commanding robot 
-    sub = rospy.Subscriber('...', ..., read_odometry, queue_size=1) # Callback function to read in robot Odometry messages
-
- #   bumper_sub = rospy.Subscriber('...', ..., readBumper, queue_size=1) # Callback function to handle bumper events
-
-    # Use this object to get the robot's Odometry 
-    odom_list = tf.TransformListener()
+    pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)  
     
-    # Use this command to make the program wait for some seconds
-    rospy.sleep(rospy.Duration(1, 0))
+    # Subscribers for odometry and bumper events
+    rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) 
+    rospy.Subscriber('/mobile_base/events/bumper', BumperEvent, readBumper, queue_size=1)   
 
-
-    print "Starting Lab 2"
-    spinWheels(1, .1, 10)
-    
-    print "Lab 2 complete!"
-   
-'''
-    try:
-    	print "Publishing to make robot drive in a circle..."
-    	r = rospy.Rate(10) # 10hz
-    	while not rospy.is_shutdown():
-    		pub.publish(makeTwist(0.2,.2))
-        	r.sleep()
-    	
-    except:
-    	print e
-    
-    finally:
-    # publish a stop command
-    	print "Finally.. crap"
-    	pub.publish(makeTwist(0,0))
-  
-'''
-
-
+	# Wait, then spin. Exectute trajectory activated by bumper events
+    rospy.sleep(rospy.Duration(.5, 0))       
+    rospy.spin()
 
