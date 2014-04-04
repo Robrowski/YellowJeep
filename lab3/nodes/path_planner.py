@@ -36,6 +36,14 @@ def makeGridCells(cells):
 	newHeader = Header(1,rospy.get_rostime(),'map')
 	return GridCells(newHeader, gridResolution, gridResolution, cells)
 
+# Converts a list of "points" in map indices to XY grid cells
+def convertPointsToCells(points):
+	cells = []
+	for pt in points:
+		cells += [newGridCell(pt)]
+	return cells
+
+
 #####################################################
 ################   Map Utilities   ##################
 #####################################################
@@ -68,56 +76,71 @@ def readMapPoint(x,  y = None):
 	
 	width = currentMap.info.width	
 	return currentMap.data[y*width + x]
+	
+	
+# Gets a list of the adjacent points that have low 
+# chances of being obstacles
+# -can also take a Point object	
+# -optional tolerance, default 100
+def getEightAdjacentPoints(x, y = None, tol = 100):
+	# X is actually a Point object in this case
+	if y == None: 
+		y = x.y
+		x = x.x
+
+	# Make a list of the 8 adjacent points
+	pointsToCheck = []
+	for ax in range(x-1,x+2):
+		for ay in range(y-1,y+2):
+			pointsToCheck += [Point(ax,ay,0)]
+	pointsToCheck.remove(Point(x,y,0)) #center
+
+
+	# A list of points that are adjacent and need
+	# to be checked for obstacles
+	pointsWithoutObstacles = []
+	for pt in pointsToCheck:
+		if readMapPoint(pt) < tol:
+			pointsWithoutObstacles += [pt]
+
+	return pointsWithoutObstacles
+	
 
 #####################################################
 ###################   PUBLISHERS   ##################
 #####################################################
-# Send cells to the frontier topic
-def sendToFrontier(cells):
+# Send points to the frontier topic
+def sendToFrontier(points):
 	global frontPub
-	frontPub.publish(makeGridCells(cells))
+	frontPub.publish(makeGridCells(convertPointsToCells(points)))
 	
-
-# Send cells to the path topic
-def sendToPath(cells):
+# Send points to the path topic
+def sendToPath(points):
 	global pathPub
-	pathPub.publish(makeGridCells(cells))
+	pathPub.publish(makeGridCells(convertPointsToCells(points)))
 
-# Send expanded to the path topic
-def sendToExpanded(cells):
+# Send points to the expanded topic
+def sendToExpanded(points):
 	global expandedPub
-	expandedPub.publish(makeGridCells(cells))
-
+	expandedPub.publish(makeGridCells(convertPointsToCells(points)))
 
 	
 ######################################################
 # Prints back map data
 def mapRecieved(newMap):
+	## Default stuff
 	global currentMap
 	currentMap = newMap
-
 	readMapMetaData(newMap);
 
-	
-	######################################################
-	# OPTIONAL ARGUMENTS RULE
-	print "Point 1"
-	print newGridCell(           7, 5)
- 	
- 	print "Point 2"
- 	print newGridCell(Point(7,5,0)   )
- 
-	# Read map Point
-	print "read 1"
-	print readMapPoint(0,0)
-	
-	print "read 2"
-	print readMapPoint(   Point(0,0,0) )
-	######################################################
+	## Random stuff
+	sendToExpanded( getEightAdjacentPoints(17,17))
 
-	#mapAnimationDemo();
+#	mapAnimationDemo();
 
-	
+#####################################################
+###################   Inits        ##################
+#####################################################
 # initializes frontier, expanded and path publishers
 def initGridCellPublishers():
 	global frontPub
