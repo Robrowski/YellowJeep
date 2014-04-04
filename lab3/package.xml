@@ -10,9 +10,9 @@
 
 	<url type="website">http://robrowski.github.io/YellowJeep/</url> 
 
-	<author email="@wpi.edu"></author>
-	<author email="@wpi.edu"></author>
-	<author email="@wpi.edu"></author>
+	<author email="rpdabrowski@wpi.edu">Robert Dabrowski</author>
+	<author email="tmmurcko@wpi.edu">Tim Murcko</author>
+	<author email="mscosti@wpi.edu">Matt Costi</author>
 
 
   <!-- Use build_depend for packages you need at compile time: -->

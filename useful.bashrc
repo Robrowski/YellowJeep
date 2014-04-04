@@ -444,7 +444,8 @@ git config --global credential.helper 'cache --timeout=18000'
 # Random Aliases
 alias clean='rm -rf *~ *.*~'
 alias bashrc='gedit ~/.bashrc &'
-alias svBash='cat ~/.bashrc > useful.bashrc'
+alias svBash='cat ~/.bashrc > ~/catkin_ws/src/YellowJeep/useful.bashrc'
+alias loadBash='cat ~/catkin_ws/src/YellowJeep/useful.bashrc > ~/.bashrc'
 alias home='cd ~/catkin_ws/'
 alias py='chmod +x *.py' # make all scripts executable
 
@@ -454,6 +455,10 @@ alias build='ros-build-workspace'
 alias bag='rosbag record -o'
 alias topic_graph='rosrun rqt_graph rqt_graph'
 alias save_map='cd ~/catkin_ws/maps; rosrun map_server map_saver -f'
+
+# ROS mapping
+alias MapLab3='rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/simple_map.yaml'
+alias RobsRviz='rosrun rviz rviz -d ~/catkin_ws/src/YellowJeep/maps/Robs_rviz_config.rviz'
 
 
 # ROS TurtleBot sim

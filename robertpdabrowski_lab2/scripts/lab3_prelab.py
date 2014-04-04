@@ -14,7 +14,8 @@ from nav_msgs.msg import OccupancyGrid
 # Prints back map data
 def printMap(data):
 	print data
-
+	global pub
+	pub.publish(data)
 
 
 
@@ -28,6 +29,9 @@ if __name__ == '__main__':
 
 	# Subscribing to the map
 	rospy.Subscriber('/map',  OccupancyGrid, printMap, queue_size=1)
+
+	global pub
+	pub = rospy.Publisher('/poop', OccupancyGrid);
 
 	# Wait, then spin. 
 	rospy.sleep(rospy.Duration(.5, 0))       
