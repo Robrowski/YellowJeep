@@ -459,6 +459,7 @@ alias save_map='cd ~/catkin_ws/maps; rosrun map_server map_saver -f'
 # ROS mapping
 alias MapLab3='rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/simple_map.yaml'
 alias RobsRviz='rosrun rviz rviz -d ~/catkin_ws/src/YellowJeep/maps/Robs_rviz_config.rviz'
+alias Lab3Map='rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/simple_map.yaml'
 
 
 # ROS TurtleBot sim

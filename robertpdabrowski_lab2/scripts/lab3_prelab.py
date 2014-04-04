@@ -24,11 +24,12 @@ def printMap(data):
 if __name__ == '__main__':
     
 	# Change this node name to include your username
-	rospy.init_node('Rob made a map reading Node', anonymous=True)
+	rospy.init_node('RobsNode', anonymous=True)
 
 
 	# Subscribing to the map
 	rospy.Subscriber('/map',  OccupancyGrid, printMap, queue_size=1)
+ 
 
 	global pub
 	pub = rospy.Publisher('/poop', OccupancyGrid);
