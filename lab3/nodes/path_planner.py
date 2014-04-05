@@ -9,8 +9,6 @@ from nav_msgs.msg import GridCells
 from std_msgs.msg import Header
 from geometry_msgs.msg import Point
 
-
-
 #####################################################
 ##########   Grid Cell Utilities   ##################
 #####################################################
@@ -136,7 +134,8 @@ def mapRecieved(newMap):
 	## Random stuff
 	sendToExpanded( getEightAdjacentPoints(17,17))
 
-#	mapAnimationDemo();
+	#sendToPath( [Point(36,36,0)])
+	mapAnimationDemo();
 
 #####################################################
 ###################   Inits        ##################
@@ -165,16 +164,13 @@ def mapAnimationDemo():
 		for y in range(mapInfo.height):
 			ptVal = readMapPoint(x,y)
 			if ptVal == 0:
-				front += [newGridCell(x,y)]
+				front += [Point(x,y,0)]
 			else:
-				exp   += [newGridCell(x,y)]
-			sendToExpanded(exp)
-			sendToFrontier(front)
-			r.sleep()
-
-
-
-
+				exp   += [Point(x,y,0)]
+			print x,y
+		sendToExpanded(exp)
+		sendToFrontier(front)
+		r.sleep()
 
 # This is the program's main function
 if __name__ == '__main__':
@@ -185,8 +181,7 @@ if __name__ == '__main__':
    
   	# Subscribing to the map
     rospy.Subscriber('/map',  OccupancyGrid, mapRecieved, queue_size=1)
-    
-  
+      
     
     # Wait, then spin. 
     rospy.sleep(rospy.Duration(.5, 0))       

@@ -459,7 +459,6 @@ alias save_map='cd ~/catkin_ws/maps; rosrun map_server map_saver -f'
 # ROS mapping
 alias MapLab3='rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/simple_map.yaml'
 alias RobsRviz='rosrun rviz rviz -d ~/catkin_ws/src/YellowJeep/maps/Robs_rviz_config.rviz'
-alias Lab3Map='rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/simple_map.yaml'
 
 
 # ROS TurtleBot sim
@@ -492,6 +491,14 @@ alias pull='git pull origin'
 #  		 ["thor"]="192.168.1.5"
 # 	    ["hawkeye"]="192.168.1.6" works
 #      ["blackwidow"]="192.168.1.7" works
+
+function LoadMap(){
+    rosrun map_server map_server ~/catkin_ws/src/YellowJeep/maps/$1.yaml
+}
+
+function LoadMapls(){
+    ls ~/catkin_ws/src/YellowJeep/maps/
+}
 
 
 function turtleLogin(){
