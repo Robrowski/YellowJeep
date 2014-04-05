@@ -15,7 +15,7 @@ def mapRecieved(newMap):
 	## Default stuff
 	global pub
 	global holster
-	holster = MapHolster(newMap)
+
 
 	## Random stuff
 	pub.sendToExpanded(holster, holster.getEightAdjacentPoints(17,17))
@@ -49,16 +49,19 @@ def mapAnimationDemo():
 # This is the program's main function
 if __name__ == '__main__':
     # Change this node name to include your username
-    rospy.init_node('Path_Planner', anonymous=True)
-    
-    global pub
-    pub = YellowPublisher()
-   
+	rospy.init_node('Path_Planner', anonymous=True)
+
+	global pub
+	pub = YellowPublisher()
+	global holster
+	holster = MapHolster()  # This map is ready to go forever
+
+	# THIS IS STILL HERE TO make sure the map is initialized
   	# Subscribing to the map
-    rospy.Subscriber('/map',  OccupancyGrid, mapRecieved, queue_size=1)
-      
-    
-    # Wait, then spin. 
-    rospy.sleep(rospy.Duration(.5, 0))       
-    rospy.spin()
+	rospy.Subscriber('/map',  OccupancyGrid, mapRecieved, queue_size=1)
+	  
+
+	# Wait, then spin. 
+	rospy.sleep(rospy.Duration(.5, 0))
+	rospy.spin()
 
