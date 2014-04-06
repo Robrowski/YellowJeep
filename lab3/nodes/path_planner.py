@@ -33,23 +33,45 @@ def getLowestF(frontier,f_score):
 def weightBetween(x,y):
 	return 1
 
+def reconstructPath(parents,start,goal):
+	global holster
+	global pub
+	current = goal
+	path = [goal]
+	flag = 1
+	r = rospy.Rate(100)
+	while flag:
+		current = parents[current]
+		path.append(current)
+		pub.sendToPath(holster,path)
+		print current.x, current.y
+		if current == start:
+			flag = 0
+		r.sleep()
+
+	return path
+
 #start and goal are Points from gemoetry_msgs.msg
 def astar(start, goal):
 	global holster
 	global pub
+	# global r
 
 	explored = []
 	frontier = [start]
 
 	g_score = {start:0}
 	f_score = {start:g_score[start] + distance(start, goal)}
+	parents = {}
 	
-
+	r = rospy.Rate(100)# 50hz
 	while frontier:
 		current = getLowestF(frontier,f_score)
 		print "current"
-		print current
+		print current.x, current.y
+		# print frontier
 		if current == goal:
+			parents[goal] = current
 			break
 
 		explored.append(current)
@@ -74,18 +96,23 @@ def astar(start, goal):
 			
 			
 
-			if (neighbor in frontier) and temp_f >= f_score[neighbor]:
+			if (neighbor in explored) and temp_f >= f_score[neighbor]:
+				print "already on frontier and is bad", neighbor.x, neighbor.y
 				continue
 
 			if (neighbor not in frontier) or temp_f < f_score[neighbor]:
-				# parents[neighbor] = current
+				print "not in frontier"
+				parents[neighbor] = current
 				g_score[neighbor] = temp_g
 				f_score[neighbor] = temp_f
 				if neighbor not in frontier:
 					frontier.append(neighbor)
+			r.sleep()
 
-	pub.sendtoExpanded(holster,explored)
+	pub.sendToExpanded(holster,explored)
 	pub.sendToFrontier(holster,frontier)
+	path = reconstructPath(parents,start,goal)
+	pub.sendToPath(holster,path)
 	return
 
 
