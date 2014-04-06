@@ -5,10 +5,13 @@ project(lab3)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  nav_msgs
+  catkin
   roscpp
   rospy
+  nav_msgs
+  geometry_msgs
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -52,11 +55,12 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
+add_service_files(
+	FILES
+	CalculatePath.srv
 #   Service1.srv
 #   Service2.srv
-# )
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -66,10 +70,11 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   nav_msgs#   std_msgs
-# )
+generate_messages(
+	DEPENDENCIES
+	std_msgs
+	geometry_msgs
+)
 
 ###################################
 ## catkin specific configuration ##
@@ -83,7 +88,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lab3
-#  CATKIN_DEPENDS nav_msgs roscpp rospy std_msgs
+   CATKIN_DEPENDS nav_msgs roscpp rospy std_msgs message_runtime
 #  DEPENDS system_lib
 )
 
