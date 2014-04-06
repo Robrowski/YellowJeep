@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy
+import rospy, math
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import GridCells
 from std_msgs.msg import Header
@@ -11,28 +11,17 @@ from geometry_msgs.msg import PoseStamped
 # MapHolster Holds a map and encapsulates grid cell abstraction
 class MapHolster:
     
-	# Callbacks
-	def mapRecieved(self, aMap):
-		self.currentMap = aMap
-		self.mapInfo = aMap.info
-		self.mapOrigin  = aMap.info.origin.position 
-		self.gridResolution = aMap.info.resolution # assume square map
-		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
-	
-	
 	# Reads map meta data and saves to object constants
 	def __init__(self):
-		rospy.Subscriber('/map',  OccupancyGrid, self.mapRecieved, queue_size=None)
-	   
-		# Fancy shit to have map holster automatically subscribe to:
-		# - set points from rviz
-		# - the map!
-		# TODO
-		#	'/move_base_simple/goal'
-		#	'/initialpose'
-		# Subscribing to the map
+		# Default stuff
+		self.goal = Point(0,0,0)  # default
+		self.start = Point(0,0,0) # default		
 		
-	
+		# Automatic subscribers
+		rospy.Subscriber('/map',  OccupancyGrid, self.mapRecieved, queue_size=None)
+		rospy.Subscriber('/move_base_simple/goal',  PoseStamped, self.goalRecieved, queue_size=None)
+		rospy.Subscriber('/initialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
+		
 	
     #####################################################
     ##########   Grid Cell Utilities   ##################
@@ -57,6 +46,13 @@ class MapHolster:
 			cells += [self.newGridCell(pt)]
 		return cells
 
+	# converts a random cell to be the nearest map Point(whole numbers!)
+	def convertCellToPoint(self, aCell):
+		mx = math.trunc((aCell.x - self.gridOrigin.x) / self.gridResolution)
+		my = math.trunc((aCell.y - self.gridOrigin.y) / self.gridResolution)
+		return Point(mx, my,0)
+		
+		
     #####################################################
     ######   GridCell message Utilities   ###############
     #####################################################
@@ -112,4 +108,20 @@ class MapHolster:
 		return pointsWithoutObstacles
         
     
-    
+    #####################################################
+    ##########   Subscriber Callbacks  ##################
+    #####################################################    
+	def mapRecieved(self, aMap):
+		self.currentMap = aMap
+		self.mapInfo = aMap.info
+		self.mapOrigin  = aMap.info.origin.position 
+		self.gridResolution = aMap.info.resolution # assume square map
+		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
+	
+	def goalRecieved(self, aStampedPose):
+		self.goal = self.convertCellToPoint(aStampedPose.pose.position)
+			
+	def startRecieved(self, aPoseWithCovarianceStamped):
+		self.start = self.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
+		
+	
