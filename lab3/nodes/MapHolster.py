@@ -8,6 +8,13 @@ from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
 
+# Takes the distance between two Points
+def distance(aPoint, bPoint):
+	sq1 = math.pow(aPoint.x -  bPoint.x, 2 )
+	sq2 = math.pow(aPoint.y - bPoint.y, 2)
+	return math.sqrt(sq1 + sq2)
+
+
 # MapHolster Holds a map and encapsulates grid cell abstraction
 class MapHolster:
     
@@ -97,7 +104,7 @@ class MapHolster:
 		for ax in range(x-1,x+2):
 			for ay in range(y-1,y+2):
 				pointsToCheck += [Point(ax,ay,0)]
-		pointsToCheck.remove(Point(x,y,0)) #center
+		pointsToCheck.remove(Point(x,y,0)) # Center
 
         # A list of points that are adjacent and need
         # to be checked for obstacles
