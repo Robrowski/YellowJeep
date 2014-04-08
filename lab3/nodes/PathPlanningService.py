@@ -24,15 +24,32 @@ from MapHolster      import *
 ######################################################
 def handleCalculatePath(h):
 	global holster
+	
+	# If None's are received, that is the signal to use the 
+	# start and goal cached in the MapHolster set by Rviz
+	if h.start == None and h.goal == None:
+		print "Using goal from MapHolster"
+		start = holster.start
+		goal = holster.goal
+	else: # use the given start and goals
+		start = h.start
+		goal = h.goal
+	
+######################################################	
+	## INSERT A* HERE
+	
+	
+	
+	
+	# path = resultOfA*
+######################################################	
+	# Dummy path
 	x = h.start.x
 	y = h.start.y
 	path = [Point(x+1,y+0,0),Point(x+1,y+1,0),Point(x+1,y+2,0),Point(x+1,y+3,0),Point(x+2,y+3,0),Point(x+3,y+3,0)]
 	
-	
-	
-	global ypub
-	ypub.sendToPath(holster,path)
-	
+$#####################################################
+	# send path back
 	return CalculatePathResponse(path)
 
 
@@ -43,8 +60,6 @@ if __name__ == '__main__':
     # Need a reference to the holster so that the map is ready
 	global holster
 	holster = MapHolster() 
-	global ypub
-	ypub = YellowPublisher()
 	
 	
 	# Setup up server
