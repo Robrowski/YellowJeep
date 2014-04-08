@@ -133,15 +133,43 @@ def astar(start, goal):
 				f_score[neighbor] = temp_f
 				if neighbor not in frontier:
 					frontier.append(neighbor)
-			r.sleep()
+		#	r.sleep()
 
 	pub.sendToExpanded(holster,explored)
 	pub.sendToFrontier(holster,frontier)
 	path = reconstructPath(parents,start,goal)
-	pub.sendToPath(holster,path)
+	### BUG goal is added twice
+	### BUG Goal is not removed from frontier once found
+	
+	
+	
+	pub.sendToWaypoints(holster,extractWaypoints(path))
 	return
 
+	
+	
+# Extracts way points to simplify path	
+def extractWaypoints(path):
+	
+	path.remove(path[0])	
+		
+	i = 0
+	while i + 2 < len(path):
+		
+		# Check three points at a time
+		unitVec1 = unitVector(path[i]  , path[i+1])
+		unitVec2 = unitVector(path[i+1], path[i+2])
+		 
+		# If the unit vectors are identical, we can delete the middle point
+		if unitVec1 == unitVec2: 
+			path.remove(path[i+1])
+		else: #check next set of points
+			i += 1
 
+			
+	print path
+	print "Done extracting"
+	return path
 
 
 
@@ -170,7 +198,7 @@ def mapAnimationDemo():
 	
 # This is the program's main function
 if __name__ == '__main__':
-    # Change this node name to include your username
+    # Change this node name to include your i
 	rospy.init_node('Path_Planner', anonymous=True)
 
 	global pub

@@ -8,13 +8,39 @@ from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
 
+
+# Calculates the unit vector connecting two points
+def unitVector(origin, there):
+	magnitude = distance(origin, there)
+	x = (there.x - origin.x)/magnitude
+	y = (there.y - origin.y)/magnitude
+	return Point(x,y,0)
+
+
 # Takes the distance between two Points
 def distance(aPoint, bPoint):
 	sq1 = math.pow(aPoint.x -  bPoint.x, 2 )
 	sq2 = math.pow(aPoint.y - bPoint.y, 2)
 	return math.sqrt(sq1 + sq2)
 
+# New heuristic?
+# A heuristic that calculates the distance assuming that the 
+# robot can only move straight and at 45 degree angles to 
+# get to its goal
+def newHeuristic(start, goal):
+	# vector from start to goal
+	v = Point( math.fabs(goal.x - start.x), math.fabs(goal.y - start.y), 0)
+	
+	# max distance going at 45 degree angles
+	d45 = math.sqrt(2)*min(v.x, v.y)
+	
+	# min distance going straight
+	dS = math.fabs(v.x - v.y)
+	
+	return d45 + dS
 
+	
+	
 # MapHolster Holds a map and encapsulates grid cell abstraction
 class MapHolster:
     
