@@ -77,34 +77,34 @@ Visualization Manager:
       Topic: /move_base_simple/goal
       Value: true
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: visualization_marker_array
       Name: MarkerArray
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
-    - Alpha: 1
+      Value: false
+    - Alpha: 0.6
       Class: rviz/GridCells
       Color: 255; 255; 3
-      Enabled: false
+      Enabled: true
       Name: GridCells
       Topic: /frontier
-      Value: false
-    - Alpha: 1
+      Value: true
+    - Alpha: 0.3
       Class: rviz/GridCells
       Color: 25; 255; 0
-      Enabled: false
+      Enabled: true
       Name: GridCells
       Topic: /path
-      Value: false
-    - Alpha: 1
+      Value: true
+    - Alpha: 0.2
       Class: rviz/GridCells
       Color: 181; 166; 0
-      Enabled: false
+      Enabled: true
       Name: GridCells
       Topic: /expanded
-      Value: false
+      Value: true
     - Alpha: 1
       Class: rviz/GridCells
       Color: 255; 0; 255
@@ -136,22 +136,22 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 9.06401
+      Distance: 11.3149
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.739858
-        Y: 0.370028
-        Z: 0.0620142
+        X: 0.627699
+        Y: 0.648527
+        Z: -1.10065
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.2998
+      Pitch: 1.43164
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.71861
+      Yaw: 4.71119
     Saved:
       - Class: rviz/Orbit
         Distance: 7.90742

@@ -138,7 +138,7 @@ def astar(start, goal):
 	pub.sendToExpanded(holster,explored)
 	pub.sendToFrontier(holster,frontier)
 	path = reconstructPath(parents,start,goal)
-	### BUG goal is added twice
+	### BUG goal is added twice to path
 	### BUG Goal is not removed from frontier once found
 	
 	
@@ -161,14 +161,15 @@ def extractWaypoints(path):
 		unitVec2 = unitVector(path[i+1], path[i+2])
 		 
 		# If the unit vectors are identical, we can delete the middle point
-		if unitVec1 == unitVec2: 
+		if math.atan2(unitVec1.x, unitVec1.y) == math.atan2(unitVec2.x, unitVec2.y): 
 			path.remove(path[i+1])
 		else: #check next set of points
+		#	print "Failed to remove: " + str(i)
 			i += 1
-
-			
-	print path
-	print "Done extracting"
+	
+			#print unitVec1
+			#print unitVec2		
+#	print "Done extracting"
 	return path
 
 
