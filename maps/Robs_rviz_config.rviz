@@ -91,14 +91,14 @@ Visualization Manager:
       Name: GridCells
       Topic: /frontier
       Value: true
-    - Alpha: 0.3
+    - Alpha: 0.1
       Class: rviz/GridCells
-      Color: 25; 255; 0
+      Color: 255; 172; 255
       Enabled: true
       Name: GridCells
       Topic: /path
       Value: true
-    - Alpha: 0.2
+    - Alpha: 0.1
       Class: rviz/GridCells
       Color: 181; 166; 0
       Enabled: true
@@ -148,10 +148,10 @@ Visualization Manager:
         Z: -1.10065
       Name: Current View
       Near Clip Distance: 0.01
-      Pitch: 1.43164
+      Pitch: 1.3548
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.71119
+      Yaw: 4.67619
     Saved:
       - Class: rviz/Orbit
         Distance: 7.90742
@@ -203,5 +203,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1855
-  X: 57
-  Y: -4
+  X: 58
+  Y: 24

@@ -45,22 +45,19 @@ def weightBetween(a,b):
 def reconstructPath(parents,start,goal):
 	current = goal
 	path = [goal]
-	flag = 1
-	r = rospy.Rate(100)
-	while flag:
-		current = parents[current]
-		print current.x, current.y
-		if current == start:
-			flag = 0
-		r.sleep()
 
+	while current != start:
+		current = parents[current]
+		path.append(current)
+		
 	return path
 
 #start and goal are Points from gemoetry_msgs.msg
 def astar(start, goal, holster):
 	# global holster
 	# global pub
-
+	pub = YellowPublisher()
+	
 	explored = [] 		#list of explored nodes
 	frontier = [start]	#list of nodes to explore
 
@@ -70,16 +67,16 @@ def astar(start, goal, holster):
 	f_score = {start:g_score[start] + distance(start, goal)} 
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
-	
 	r = rospy.Rate(100)# 100hz for animation
-
+	
 	while frontier:
 		#get the lowest node from the frontier to exlore next
 		current = getLowestF(frontier,f_score)
-		print current.x, current.y
+	#	print current.x, current.y
 
 		#if at the goal, add the goal to the parents list and end
 		if current == goal:
+			parents[goal] = current
 			break
 
 		#add the node to the explored list, and remove it from frontier
@@ -87,8 +84,8 @@ def astar(start, goal, holster):
 		frontier.remove(current)
 
 		#for animating, publish on every iteration
-		# pub.sendToExpanded(holster,explored)
-		# pub.sendToFrontier(holster,frontier)
+		pub.sendToExpanded(holster,explored)
+		pub.sendToFrontier(holster,frontier)
 
 		#get all eight connected neighbors
 		neighbors = holster.getEightAdjacentPoints(current)
@@ -97,7 +94,7 @@ def astar(start, goal, holster):
 			temp_g = g_score[current] + weightBetween(current,neighbor)
 			temp_f =  temp_g + distance(neighbor,goal)
 
-			print neighbor.x, neighbor.y, temp_g
+		#	print neighbor.x, neighbor.y, temp_g
 
 			if neighbor not in f_score:
 				f_score[neighbor] = temp_f
@@ -116,9 +113,9 @@ def astar(start, goal, holster):
 				if neighbor not in frontier:
 					frontier.append(neighbor)
 			r.sleep()
-
-	# pub.sendToExpanded(holster,explored)
-	# pub.sendToFrontier(holster,frontier)
+		
+	pub.sendToExpanded(holster,explored)
+	pub.sendToFrontier(holster,frontier)
 	path = reconstructPath(parents,start,goal)
-	# pub.sendToPath(holster,path)
+#	pub.sendToPath(holster,path)
 	return path

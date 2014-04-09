@@ -8,8 +8,8 @@ import rospy, math
 from geometry_msgs.msg import Point
 from YellowPublisher import *
 from MapHolster import *
-#from PathPlanningService import *
 from lab3.srv import *
+from geometry_msgs.msg import PoseStamped
 
 ######################################################
 # Prints back map data
@@ -198,6 +198,31 @@ def mapAnimationDemo():
 		r.sleep()
 	pub.sendToExpanded(holster,exp)
 	pub.sendToFrontier(holster,front)	
+
+def gotGoal(msg):	
+	global holster
+	global pub
+
+	pub.clearTopics(holster)
+	print "Got a goal from RVIZ!!"
+
+	rospy.wait_for_service('calculate_path')
+	try:
+		calculate_path = rospy.ServiceProxy('calculate_path', CalculatePath)
+		#resp = calculate_path(Point(1,3,0), Point(1,1,0))
+		resp = calculate_path(None, None)
+		
+		path = resp.path	
+		pub.sendToPath(holster, path)
+		
+		waypoints = extractWaypoints(path)
+		pub.sendToWaypoints(holster, waypoints)	
+	except rospy.ServiceException, e:
+		print "Service call failed: %s"%e
+
+
+
+
 	
 # This is the program's main function
 if __name__ == '__main__':
@@ -208,29 +233,14 @@ if __name__ == '__main__':
 	pub = YellowPublisher()
 	global holster
 	holster = MapHolster()  # This map is ready to go forever
-	global mapGotFlag
-	mapGotFlag = 0
+
 
 	# THIS IS STILL HERE TO make sure the map is initialized
   	# Subscribing to the map
-	rospy.Subscriber('/map',  OccupancyGrid, mapRecieved, queue_size=1)
-	  
-	while not mapGotFlag:
-		pass
-
-	rospy.wait_for_service('calculate_path')
-	try:
-		calculate_path = rospy.ServiceProxy('calculate_path', CalculatePath)
-		path = calculate_path(Point(1,3,0), Point(1,1,0))
-		waypoints = extractWaypoints(path)
-	except rospy.ServiceException, e:
-		print "Service call failed: %s"%e
-
-	while True:
-		pub.sendToPath(holster, path)
-		pup.sendToWaypoints(holster, waypoints)
-
-	# Wait, then spin. 
-	rospy.sleep(rospy.Duration(.5, 0))
+	#rospy.Subscriber('/map',  OccupancyGrid, mapRecieved, queue_size=1)
+	rospy.Subscriber('/move_base_simple/goal',  PoseStamped, gotGoal, queue_size=1)
+	
 	rospy.spin()
+	
+
 

@@ -47,8 +47,8 @@ class MapHolster:
 	# Reads map meta data and saves to object constants
 	def __init__(self):
 		# Default stuff
-		self.goal = Point(0,0,0)  # default
-		self.start = Point(0,0,0) # default		
+		self.goal = Point(1,1,0)  # default
+		self.start = Point(1,1,0) # default		
 		
 		# Automatic subscribers
 		rospy.Subscriber('/map',  OccupancyGrid, self.mapRecieved, queue_size=None)
@@ -153,7 +153,7 @@ class MapHolster:
 	
 	def goalRecieved(self, aStampedPose):
 		self.goal = self.convertCellToPoint(aStampedPose.pose.position)
-			
+		
 	def startRecieved(self, aPoseWithCovarianceStamped):
 		self.start = self.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
 		

@@ -29,3 +29,9 @@ class YellowPublisher:
 	# Send points to the expanded topic
 	def sendToWaypoints(self, holster, points):
 		self.wpPub.publish(holster.makeMessage(points))
+		
+	def clearTopics(self, holster):
+		self.sendToWaypoints(holster, [])
+		self.sendToExpanded(holster, [])
+		self.sendToPath(holster, [])
+		self.sendToFrontier(holster, [])

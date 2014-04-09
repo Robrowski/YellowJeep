@@ -10,7 +10,6 @@ from geometry_msgs.msg import Point
 from YellowPublisher import *
 from MapHolster      import *
 from AStar 			 import astar
-from path_planner  	 import *
 
 
 ######################################################
@@ -33,7 +32,7 @@ def handleCalculatePath(h):
 
 	# If None's are received, that is the signal to use the 
 	# start and goal cached in the MapHolster set by Rviz
-	if h.start == None and h.goal == None:
+	if h.start == Point(0,0,0) or  h.goal == Point(0,0,0):
 		print "Using goal from MapHolster"
 		start = holster.start
 		goal = holster.goal
@@ -41,7 +40,6 @@ def handleCalculatePath(h):
 		pass
 ######################################################	
 	## INSERT A* HERE
-	print holster.mapOrigin
 	path = astar(start,goal, holster)
 	
 	
