@@ -9,6 +9,8 @@ import rospy, math
 from geometry_msgs.msg import Point
 from YellowPublisher import *
 from MapHolster      import *
+from AStar 			 import astar
+from path_planner  	 import *
 
 
 ######################################################
@@ -24,7 +26,11 @@ from MapHolster      import *
 ######################################################
 def handleCalculatePath(h):
 	global holster
+	# holster = getHolster()
 	
+	start = h.start
+	goal = h.goal
+
 	# If None's are received, that is the signal to use the 
 	# start and goal cached in the MapHolster set by Rviz
 	if h.start == None and h.goal == None:
@@ -37,18 +43,18 @@ def handleCalculatePath(h):
 	
 ######################################################	
 	## INSERT A* HERE
-	
-	
+	print holster.mapOrigin
+	path = astar(start,goal, holster)
 	
 	
 	# path = resultOfA*
 ######################################################	
-	# Dummy path
-	x = h.start.x
-	y = h.start.y
-	path = [Point(x+1,y+0,0),Point(x+1,y+1,0),Point(x+1,y+2,0),Point(x+1,y+3,0),Point(x+2,y+3,0),Point(x+3,y+3,0)]
+	# # Dummy path
+	# x = h.start.x
+	# y = h.start.y
+	# path = [Point(x+1,y+0,0),Point(x+1,y+1,0),Point(x+1,y+2,0),Point(x+1,y+3,0),Point(x+2,y+3,0),Point(x+3,y+3,0)]
 	
-$#####################################################
+#####################################################
 	# send path back
 	return CalculatePathResponse(path)
 
