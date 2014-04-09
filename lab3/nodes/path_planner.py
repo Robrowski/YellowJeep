@@ -8,7 +8,7 @@ import rospy, math
 from geometry_msgs.msg import Point
 from YellowPublisher import *
 from MapHolster import *
-from PathPlanningService import *
+#from PathPlanningService import *
 from lab3.srv import *
 
 ######################################################

@@ -38,9 +38,7 @@ def handleCalculatePath(h):
 		start = holster.start
 		goal = holster.goal
 	else: # use the given start and goals
-		start = h.start
-		goal = h.goal
-	
+		pass
 ######################################################	
 	## INSERT A* HERE
 	print holster.mapOrigin

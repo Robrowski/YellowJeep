@@ -122,8 +122,8 @@ class MapHolster:
 	def getEightAdjacentPoints(self, x, y = None, tol = 100):
         # X is actually a Point object in this case
 		if y == None: 
-			y = x.y
-			x = x.x
+			y = math.trunc(x.y)
+			x = math.trunc(x.x)
 			
 		# Make a list of the 8 adjacent points
 		pointsToCheck = []
