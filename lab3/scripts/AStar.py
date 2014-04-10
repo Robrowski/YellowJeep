@@ -94,18 +94,8 @@ def astar(start, goal, holster):
 			temp_g = g_score[current] + weightBetween(current,neighbor)
 			temp_f =  temp_g + newHeuristic(neighbor,goal)
 
-			# if neighbor in f_score:
-				# f_score[neighbor] = temp_f
-
-			if (neighbor in explored): #and temp_f >= f_score[neighbor]:
-					# print "already in explored and is bad", neighbor.x, neighbor.y
+			if (neighbor in explored): 
 				continue
-
-			# if neighbor not in g_score:
-			# 	g_score[neighbor] = temp_g
-				# parents[neighbor] = current
-			# else:
-			
 
 			if neighbor not in frontier:
 				frontier.append(neighbor)
@@ -115,27 +105,11 @@ def astar(start, goal, holster):
 					better = True
 			else:
 				better = False
-			#if neighbour is already explored and not lower than the value
-			# already in f_score, continue on to the next neighbour
-			
-				# '''(temp_f < f_score[neighbor] and'''
 
 			if better:
 				parents[neighbor] = current
 				g_score[neighbor] = temp_g
 				f_score[neighbor] = temp_f
-			# if (neighbor not in frontier) or  temp_g < g_score[neighbor]:
-			# 	# print "not in frontier"
-			# 	parents[neighbor] = current
-			# 	g_score[neighbor] = temp_g
-			# 	# if temp_g < g_score[neighbor]:
-			# 	# 	g_score[neighbor] = temp_g
-			# 	# 	parents[neighbor] = current
-
-			# 	f_score[neighbor] = temp_f
-			# 	if neighbor not in frontier:
-			# 		frontier.append(neighbor)
-	#		r.sleep()
 
 	
 	print "Nodes Expanded: " + str( len(explored))
