@@ -34,6 +34,7 @@ def frontierPriorityPush():
 # returns the weight/cost to go from point a to point b
 # for simplicity, all weights are equal for the time being
 def weightBetween(a,b):
+	print distance(a,b)
 	return distance(a,b)
 
 # given the list of parents and the start and goal points,
@@ -89,26 +90,51 @@ def astar(start, goal, holster):
 		#get all eight connected neighbour
 		neighbors = holster.getEightAdjacentPoints(current)
 		for neighbor in neighbors:
-
+			better = False
 			temp_g = g_score[current] + weightBetween(current,neighbor)
 			temp_f =  temp_g + newHeuristic(neighbor,goal)
 
-			if neighbor not in f_score:
-				f_score[neighbor] = temp_f
+			# if neighbor in f_score:
+				# f_score[neighbor] = temp_f
 
-			#if neighbour is already explored and not lower than the value
-			# already in f_score, continue on to the next neighbour
-			if (neighbor in explored) and temp_f >= f_score[neighbor]:
-				# print "already in explored and is bad", neighbor.x, neighbor.y
+			if (neighbor in explored): #and temp_f >= f_score[neighbor]:
+					# print "already in explored and is bad", neighbor.x, neighbor.y
 				continue
 
-			if (neighbor not in frontier) or temp_f < f_score[neighbor]:
-				# print "not in frontier"
+			# if neighbor not in g_score:
+			# 	g_score[neighbor] = temp_g
+				# parents[neighbor] = current
+			# else:
+			
+
+			if neighbor not in frontier:
+				frontier.append(neighbor)
+				better = True
+			elif neighbor in g_score:
+				if temp_g < g_score[neighbor]:
+					better = True
+			else:
+				better = False
+			#if neighbour is already explored and not lower than the value
+			# already in f_score, continue on to the next neighbour
+			
+				# '''(temp_f < f_score[neighbor] and'''
+
+			if better:
 				parents[neighbor] = current
 				g_score[neighbor] = temp_g
 				f_score[neighbor] = temp_f
-				if neighbor not in frontier:
-					frontier.append(neighbor)
+			# if (neighbor not in frontier) or  temp_g < g_score[neighbor]:
+			# 	# print "not in frontier"
+			# 	parents[neighbor] = current
+			# 	g_score[neighbor] = temp_g
+			# 	# if temp_g < g_score[neighbor]:
+			# 	# 	g_score[neighbor] = temp_g
+			# 	# 	parents[neighbor] = current
+
+			# 	f_score[neighbor] = temp_f
+			# 	if neighbor not in frontier:
+			# 		frontier.append(neighbor)
 	#		r.sleep()
 
 	
