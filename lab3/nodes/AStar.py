@@ -30,10 +30,10 @@ def getLowestF(frontier,f_score):
 def frontierPriorityPush():
 	pass
 
-# returns the weight/cost to go frome point a to point b
+# returns the weight/cost to go from point a to point b
 # for simplicity, all weights are equal for the time being
 def weightBetween(a,b):
-	return 1
+	return distance(a,b)
 
 # given the list of parents and the start and goal points,
 # return a reconstructed path going from the goal to the start
@@ -64,15 +64,14 @@ def astar(start, goal, holster):
 	g_score = {start:0} #dictionary for best cost to any node from start
 
 	#dictionary of best final scores ( = with heuristic) for each node from start
-	f_score = {start:g_score[start] + distance(start, goal)} 
+	f_score = {start:g_score[start] + newHeuristic(start, goal)} 
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
-	r = rospy.Rate(100)# 100hz for animation
+#	r = rospy.Rate(100)# 100hz for animation
 	
 	while frontier:
-		#get the lowest node from the frontier to exlore next
+		#get the lowest node from the frontier to explore next
 		current = getLowestF(frontier,f_score)
-	#	print current.x, current.y
 
 		#if at the goal, add the goal to the parents list and end
 		if current == goal:
@@ -84,17 +83,15 @@ def astar(start, goal, holster):
 		frontier.remove(current)
 
 		#for animating, publish on every iteration
-		pub.sendToExpanded(holster,explored)
-		pub.sendToFrontier(holster,frontier)
+	#	pub.sendToExpanded(holster,explored) 
+		pub.sendToFrontier(holster,frontier) # only need to see frontier to understand progress
 
 		#get all eight connected neighbors
 		neighbors = holster.getEightAdjacentPoints(current)
 		for neighbor in neighbors:
 
 			temp_g = g_score[current] + weightBetween(current,neighbor)
-			temp_f =  temp_g + distance(neighbor,goal)
-
-		#	print neighbor.x, neighbor.y, temp_g
+			temp_f =  temp_g + newHeuristic(neighbor,goal)
 
 			if neighbor not in f_score:
 				f_score[neighbor] = temp_f
@@ -112,8 +109,9 @@ def astar(start, goal, holster):
 				f_score[neighbor] = temp_f
 				if neighbor not in frontier:
 					frontier.append(neighbor)
-			r.sleep()
+	#		r.sleep()
 		
+	print "Nodes Expanded: " + str( len(explored))
 	pub.sendToExpanded(holster,explored)
 	pub.sendToFrontier(holster,frontier)
 	path = reconstructPath(parents,start,goal)
