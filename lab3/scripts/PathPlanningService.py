@@ -25,7 +25,6 @@ from AStar 			 import astar
 ######################################################
 def handleCalculatePath(h):
 	global holster
-	# holster = getHolster()
 	
 	start = h.start
 	goal = h.goal
@@ -61,7 +60,7 @@ if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
     # Need a reference to the holster so that the map is ready
 	global holster
-	holster = MapHolster() 
+	holster = MapHolster('/newMap') 
 	
 	
 	# Setup up server

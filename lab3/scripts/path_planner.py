@@ -38,7 +38,7 @@ def gotGoal(msg):
 if __name__ == '__main__':
 	rospy.init_node('Path_Planner', anonymous=True)
 	global pub
-	pub = YellowPublisher()
+	pub = YellowPublisher('/newMap')
 
 	rospy.Subscriber('/move_base_simple/goal',  PoseStamped, gotGoal, queue_size=1)
 	

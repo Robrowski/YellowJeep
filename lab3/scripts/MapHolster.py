@@ -12,13 +12,13 @@ from geometry_msgs.msg import PoseStamped
 class MapHolster:
     
 	# Reads map meta data and saves to object constants
-	def __init__(self):
+	def __init__(self, mapTopicName = '/map'):
 		# Default stuff
 		self.goal = Point(1,1,0)  # default
 		self.start = Point(1,1,0) # default		
 		
 		# Automatic subscribers
-		rospy.Subscriber('/map',  OccupancyGrid, self.mapRecieved, queue_size=None)
+		rospy.Subscriber(mapTopicName,  OccupancyGrid, self.mapRecieved, queue_size=None)
 		rospy.Subscriber('/move_base_simple/goal',  PoseStamped, self.goalRecieved, queue_size=None)
 		rospy.Subscriber('/initialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
 			
@@ -102,7 +102,7 @@ class MapHolster:
         # to be checked for obstacles
 		pointsWithoutObstacles = []
 		for pt in pointsToCheck:
-			if self.readMapPoint(pt) < tol:
+			if self.readMapPoint(pt) < tol and self.readMapPoint(pt) != -1:
 				pointsWithoutObstacles += [pt]
 		return pointsWithoutObstacles
         
@@ -116,7 +116,6 @@ class MapHolster:
 		self.mapOrigin  = aMap.info.origin.position 
 		self.gridResolution = aMap.info.resolution # assume square map
 		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
-		print "Holster got a map!"
 	
 	def goalRecieved(self, aStampedPose):
 		self.goal = self.convertCellToPoint(aStampedPose.pose.position)

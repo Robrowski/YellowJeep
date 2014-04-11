@@ -10,7 +10,8 @@ from nav_msgs.msg import OccupancyGrid  # map in and out
 
 
 def OptimizeOccupancyGrid(map):
-	holster = MapHolster()
+	global newmap
+	global holster
 	print "Deep copy... it takes time to go this deep, and I'm lazy"
 	newmap = copy.deepcopy(map) #need a deeeep copy
 	
@@ -18,7 +19,7 @@ def OptimizeOccupancyGrid(map):
 	# Set newmap meta data
 	newres = 0.20 #.2m = radius of robot
 	newmap.info.resolution = newres
-	newmap.info.width = math.trunc(map.info.resolution/newres*map.info.width)
+	newmap.info.width  = math.trunc(map.info.resolution/newres*map.info.width)
 	newmap.info.height = math.trunc(map.info.resolution/newres*map.info.height) 
 	w = newmap.info.width
 	h = newmap.info.height 
@@ -59,6 +60,8 @@ def OptimizeOccupancyGrid(map):
 				newVal = avg			
 			
 			newmap.data[y*w + x] = math.trunc(newVal)
+
+
 	
 	# for every point
 	print "Expanding obstacles"
@@ -87,36 +90,35 @@ def OptimizeOccupancyGrid(map):
 	print "Publishing"
 	rospy.Publisher('/newMap', OccupancyGrid).publish(newmap)
 	print "Done Publishing"
+	return newmap
+
+
+
+
 
 if __name__ == '__main__':
 	rospy.init_node('ObstacleExpander', anonymous=True)
     # Need a reference to the holster so that the map is ready
-	global h
-	h = MapHolster() 
+	global holster
+	holster = MapHolster('/map') 
+	
+	rospy.sleep(rospy.Duration(1, 0)) # need to be sure the mapholster has its shit
+
 	
 	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 
-	# Put cells that are probably obstacles into list
-	obstacles = []
-	
-	# for every point
-#	for x in range(h.mapInfo.width):
-# 		print "workin on it..."
-# 		YellowPublisher().sendToObstacles(obstacles)
-# 		for y in range(h.mapInfo.height):
-# 			neighbors = h.getEightAdjacentPoints(x,y,999) #huge tolerance
-# 			for pt in neighbors:
-# 				if h.readMapPoint(pt) > 0 or h.readMapPoint(pt) == -1:
-# 					obstacles.append(Point(x,y,0))
-# 					break;
 
-	
-	
-# 	i = 0
-# 	while (1 < 9000):
-# 		YellowPublisher().sendToObstacles(obstacles)
-# 		i += 1
-# 	
+
+	global newmap
+	r = rospy.Rate(1) # 1hz
+	while not rospy.is_shutdown():
+		try:
+			rospy.Publisher('/newMap', OccupancyGrid).publish(newmap)
+			print "published"
+		except NameError:
+			pass #don't care
+		r.sleep()
+
 	rospy.spin()
 	
 	

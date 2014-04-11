@@ -6,12 +6,13 @@ from MapHolster import *
 ## A class for publishing stuff for TeamYellowJeep
 class YellowPublisher:    
 	# initializes all publishers and a MapHolster instance
-	def __init__(self):
+	def __init__(self, mapTopicName = '/map'):
 		self.frontPub = rospy.Publisher('/frontier', GridCells)
 		self.expandedPub = rospy.Publisher('/expanded', GridCells)    
 		self.pathPub = rospy.Publisher('/path', GridCells)
 		self.wpPub = rospy.Publisher('/wayPoints', GridCells)
-		self.holster = MapHolster() # Needed to convert points to cells
+		self.holster = MapHolster(mapTopicName) # Needed to convert points to cells
+		rospy.sleep(rospy.Duration(1.1, 0)) # need to be damn sure teh holster has a map
 
 	# Send points to the frontier topic
 	def sendToFrontier(self,  points):

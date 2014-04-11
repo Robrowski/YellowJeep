@@ -56,7 +56,7 @@ def reconstructPath(parents,start,goal):
 
 #start and goal are Points from gemoetry_msgs.msg
 def astar(start, goal, holster):
-	pub = YellowPublisher()
+	pub = YellowPublisher('/newMap')
 	
 	explored = [] 		#list of explored nodes
 	frontier = [start]	#list of nodes to explore
@@ -88,7 +88,7 @@ def astar(start, goal, holster):
 		pub.sendToFrontier(frontier) # only need to see frontier to understand progress
 
 		#get all eight connected neighbour
-		neighbors = holster.getEightAdjacentPoints(current)
+		neighbors = holster.getEightAdjacentPoints(current.x, current.y, 30)
 		for neighbor in neighbors:
 			better = False
 			temp_g = g_score[current] + weightBetween(current,neighbor)
