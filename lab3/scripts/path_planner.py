@@ -33,6 +33,10 @@ def gotGoal(msg):
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
 
+def gotStart(msg):
+	global pub
+	pub.clearTopics()
+
 
 # Main function that sets up a subscriber that waits for RViz to publish goals
 if __name__ == '__main__':
@@ -41,7 +45,8 @@ if __name__ == '__main__':
 	pub = YellowPublisher('/newMap')
 
 	rospy.Subscriber('/move_base_simple/goal',  PoseStamped, gotGoal, queue_size=1)
-	
+	rospy.Subscriber('/initialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
+
 	print "Ready for RVIZ to set start and goal"
 	rospy.spin()
 	

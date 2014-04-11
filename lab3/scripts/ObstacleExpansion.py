@@ -10,35 +10,35 @@ from nav_msgs.msg import OccupancyGrid  # map in and out
 
 
 def OptimizeOccupancyGrid(map):
-	global newmap
 	global holster
 	print "Deep copy... it takes time to go this deep, and I'm lazy"
 	newmap = copy.deepcopy(map) #need a deeeep copy
-	
 
 	# Set newmap meta data
 	newres = 0.20 #.2m = radius of robot
+	oldRes = map.info.resolution
 	newmap.info.resolution = newres
-	newmap.info.width  = math.trunc(map.info.resolution/newres*map.info.width)
-	newmap.info.height = math.trunc(map.info.resolution/newres*map.info.height) 
+	newmap.info.width  = math.trunc(map.info.width*oldRes/newres)
+	newmap.info.height = math.trunc(map.info.height*oldRes/newres) 
 	w = newmap.info.width
 	h = newmap.info.height 
 	
 	#Calculate new origin
-	x = newmap.info.origin.position.x + (newres - map.info.resolution)/2
-	y = newmap.info.origin.position.y + (newres - map.info.resolution)/2
+	x = newmap.info.origin.position.x + (newres - oldRes)/2
+	y = newmap.info.origin.position.y + (newres - oldRes)/2
 	newmap.info.origin.position = Point(x, y,0)
 
 	
 	# condense point values
 	print "Condensing map"
 	newmap.data = [-1]*w*h #clear the list
-	cellsPerSide = math.trunc(newres/map.info.resolution)
+	cellsPerSide = math.trunc(newres/oldRes)
 	numCellsToCompress = cellsPerSide*cellsPerSide
 	for x in range(w):
 		for y in range(h):
 			newVal = -1
 			
+			# convert from new map coordinates to old map coordinates
 			oldx = x*cellsPerSide 
 			oldy = y*cellsPerSide
 			avg = 0
@@ -59,6 +59,7 @@ def OptimizeOccupancyGrid(map):
 			else:
 				newVal = avg			
 			
+			# Set the new value in the new map
 			newmap.data[y*w + x] = math.trunc(newVal)
 
 
@@ -68,12 +69,15 @@ def OptimizeOccupancyGrid(map):
 	expandedMap = [-1]*w*h #clear the list
  	for x in range(w):
   		for y in range(h):
+  			
+  			# Center point in consideration
   			midPt = newmap.data[y*w + x]
   			  			
-   			try: #because i am too lazy to check for walls
+   			try: #because i am too lazy to check for edges of the map
    				newVal = 0
    				for ax in range(x-1,x+2):
    					for ay in range(y-1,y+2):
+   						# To expand obstacles, only consider the maximum probability of obstacles
   	 			 		newVal = max(newVal,newmap.data[ay*w + ax] )
   	 			
   	 			expandedMap[y*w + x] = newVal	
@@ -87,13 +91,10 @@ def OptimizeOccupancyGrid(map):
 	
 	newmap.data = expandedMap
 	
-	print "Publishing"
-	rospy.Publisher('/newMap', OccupancyGrid).publish(newmap)
-	print "Done Publishing"
+	global mapToPublish 
+	mapToPublish = newmap
+	print "Done making super map. Have a nice day."
 	return newmap
-
-
-
 
 
 if __name__ == '__main__':
@@ -102,18 +103,15 @@ if __name__ == '__main__':
 	global holster
 	holster = MapHolster('/map') 
 	
-	rospy.sleep(rospy.Duration(1, 0)) # need to be sure the mapholster has its shit
 
-	
 	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 
 
-
-	global newmap
-	r = rospy.Rate(1) # 1hz
+	global mapToPublish
+	r = rospy.Rate(0.1) # 1hz
 	while not rospy.is_shutdown():
 		try:
-			rospy.Publisher('/newMap', OccupancyGrid).publish(newmap)
+			rospy.Publisher('/newMap', OccupancyGrid, latch=True).publish(mapToPublish)
 			print "published"
 		except NameError:
 			pass #don't care

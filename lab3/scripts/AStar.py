@@ -88,6 +88,10 @@ def astar(start, goal, holster):
 		pub.sendToFrontier(frontier) # only need to see frontier to understand progress
 
 		#get all eight connected neighbour
+		##########################################################
+		### THE LAST VALUE PUT INTO THIS FUNCTION DETERMINES HOW 
+		### CRAPPY A PATH A* MIGHT TAKE
+		##########################################################
 		neighbors = holster.getEightAdjacentPoints(current.x, current.y, 30)
 		for neighbor in neighbors:
 			better = False
