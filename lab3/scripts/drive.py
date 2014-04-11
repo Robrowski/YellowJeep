@@ -152,18 +152,20 @@ def getTheta():
 
 #Odometry Callback function.
 def read_odometry(data):
-    global current_pose
-    global current_theta
-    current_pose = data.pose.pose
+	global current_pose
+	global current_theta
+	current_pose = data.pose.pose
     
-    quat = data.pose.pose.orientation # gota convert them quats
-    q = [quat.x, quat.y, quat.z, quat.w]
-    roll, pitch, current_theta = euler_from_quaternion(q)
+	quat = data.pose.pose.orientation # gota convert them quats
+	q = [quat.x, quat.y, quat.z, quat.w]
+	roll, pitch, current_theta = euler_from_quaternion(q)
+	print current_theta
      
 
 #Bumper Event Callback function
 def readBumper(msg):
-    if (msg.state == 1):
+	pass    
+	#if (msg.state == 1):
         #executeTrajectory()
 
    
