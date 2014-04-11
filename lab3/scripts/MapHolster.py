@@ -76,8 +76,10 @@ class MapHolster:
 			x = x.x
         
 		width = self.currentMap.info.width    
-		return self.currentMap.data[y*width + x]
-        
+		try:
+			return self.currentMap.data[y*width + x]
+		except IndexError:
+			return -1 # undefined
         
     # Gets a list of the adjacent points that have low 
     # chances of being obstacles
@@ -114,6 +116,7 @@ class MapHolster:
 		self.mapOrigin  = aMap.info.origin.position 
 		self.gridResolution = aMap.info.resolution # assume square map
 		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
+		print "Holster got a map!"
 	
 	def goalRecieved(self, aStampedPose):
 		self.goal = self.convertCellToPoint(aStampedPose.pose.position)
