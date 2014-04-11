@@ -94,6 +94,8 @@ def OptimizeOccupancyGrid(map):
 	global mapToPublish 
 	mapToPublish = newmap
 	print "Done making super map. Have a nice day."
+	global newMapPub
+	newMapPub.publish(mapToPublish)
 	return newmap
 
 
@@ -106,12 +108,15 @@ if __name__ == '__main__':
 
 	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 
+	global newMapPub
+	newMapPub = rospy.Publisher('/newMap', OccupancyGrid, latch=True)
+
 
 	global mapToPublish
 	r = rospy.Rate(0.1) # 1hz
 	while not rospy.is_shutdown():
 		try:
-			rospy.Publisher('/newMap', OccupancyGrid, latch=True).publish(mapToPublish)
+			#newMapPub.publish(mapToPublish)
 			print "published"
 		except NameError:
 			pass #don't care
