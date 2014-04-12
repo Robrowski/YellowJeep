@@ -14,7 +14,9 @@ from tf.transformations import euler_from_quaternion
 def read_odometry(data):
 	global current_pose
 	global current_theta
+	global robotOrientation
 	current_pose = data.pose.pose
+	robotOrientation = data.pose.pose.orientation
     
 	quat = data.pose.pose.orientation # gota convert them quats
 	q = [quat.x, quat.y, quat.z, quat.w]
@@ -67,12 +69,13 @@ def driveStraight(speed, distance):
 
 	
 #Accepts an angle and makes the robot rotate around it.
+'''
 def rotate(angle):
     global current_theta
    
     goal_theta =  current_theta + angle
 
-    # make sure goal theta is within bounds of +/- pi
+   # make sure goal theta is within bounds of +/- pi
     if goal_theta > math.pi:
         goal_theta -= 2*math.pi
         
@@ -82,10 +85,53 @@ def rotate(angle):
     # Rotate in optimal direction until at setpoint
     r = rospy.Rate(10) # 10hz
     while not rospy.is_shutdown() and  math.fabs(current_theta - goal_theta )  > math.pi/100  : 
-       sendTwist(0, math.copysign(.4, angle))
+       sendTwist(0, math.copysign(.8, angle))
        r.sleep()
     
     sendTwist(0,0)#stop
+'''
+
+def angleDelta(prev,current):
+	return abs(prev - current)
+
+#takes in a normalized w from robotOrientation Quaternion, 
+#and converts it to a Yaw angle in radians.
+def calcYaw(robotW):
+	return 2*(m.acos(robotW))
+
+def getYaw(Quaternion):
+	global robotOrientation
+	angles = euler_from_quaternion([robotOrientation.x,robotOrientation.y,robotOrientation.z,robotOrientation.w])
+	angles = [(180.0/math.pi)*i for i in angles]
+	return angles[2]
+
+def calcTotalDegs(prevAngle,current,totalAngle):
+	global robotOrientation
+	if angleDelta(prevAngle,current) > 20:
+		totalAngle += 360 - angleDelta(prevAngle,current)
+	else:
+		totalAngle += angleDelta(prevAngle,getYaw(robotOrientation))
+	return totalAngle
+
+def rotateDegs(angle):
+	global turnSpeed, robotOrientation
+	r = rospy.Rate(30)
+	totalAngle = 0
+	prevAngle = getYaw(robotOrientation)
+
+	if angle > 0:
+		omega = .8
+	else:
+		omega = -.8
+	while not rospy.is_shutdown() and totalAngle <= abs(angle):
+		totalAngle = calcTotalDegs(prevAngle,getYaw(robotOrientation),totalAngle)
+		prevAngle = getYaw(robotOrientation)
+		pub.publish(makeTwist(0,omega))
+		r.sleep()
+
+def rotate(radians):
+	degs = (radians * 180) / math.pi
+	rotateDegs(degs)
 
 # Sends the given values in a Twist to the topic
 def sendTwist(forwardVelocity, angularVelocity):
@@ -101,14 +147,14 @@ if __name__ == '__main__':
     # Change this node name to include your username\
 	rospy.init_node('pathFollow', anonymous=True)
 	global current_theta
-	
+	global robotOrientation
 	global pub
 	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
 	
 	rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) 
 	# Wait, then spin. Exectute trajectory activated by bumper events
 	rospy.sleep(rospy.Duration(.5, 0)) 
-	wayPoints = [Point(4,2,0), Point(6,2,0), Point(6,4,0), Point(4,4,0),  Point(4,2,0)]
+	wayPoints = [Point(4,2,0), Point(5,2,0), Point(5,3,0), Point(4,3,0),  Point(4,2,0)]
 	followPath(wayPoints)
 	      
 	rospy.spin()
