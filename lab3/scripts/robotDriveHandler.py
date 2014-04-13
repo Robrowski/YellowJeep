@@ -47,30 +47,6 @@ def gotWaypoints(waypointMsg):
 	wayPoints = waypointMsg.cells
 
 
-
-if __name__ == '__main__':
-    
-    # Change this node name to include your username\
-	rospy.init_node('pathFollow', anonymous=True)
-	global current_theta
-	global robotOrientation
-	global pub
-	global wayPoints
-	wayPoints = [Point(0,0,0),Point(0,0,0)]
-	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
-	
-	rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) 
-	rospy.Subscriber('/waypoints', GridCells, gotWaypoints
-		)
-	# Wait, then spin. Exectute trajectory activated by bumper events
-	rospy.sleep(rospy.Duration(.5, 0)) 
-	# wayPoints = [Point(4,2,0), Point(5,2,0), Point(5,3,0), Point(4,3,0),  Point(4,2,0)]
-	followPath(wayPoints)
-	      
-	rospy.spin()
-
-
-
 #######################################################################
 #
 #		Drive Helper Functions
@@ -155,3 +131,25 @@ def sendTwist(forwardVelocity, angularVelocity):
 # Calculates the magnitude of the distance between two points in the x-y plane
 def calcDistance(start, dst):
     return math.sqrt( math.pow(dst.position.x - start.position.x,2) + math.pow(dst.position.y - start.position.y,2))
+
+
+if __name__ == '__main__':
+    
+    # Change this node name to include your username\
+	rospy.init_node('pathFollow', anonymous=True)
+	global current_theta
+	global robotOrientation
+	global pub
+	global wayPoints
+	wayPoints = [Point(0,0,0),Point(0,0,0)]
+	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
+	
+	rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) 
+	rospy.Subscriber('/waypoints', GridCells, gotWaypoints
+		)
+	# Wait, then spin. Exectute trajectory activated by bumper events
+	rospy.sleep(rospy.Duration(.5, 0)) 
+	# wayPoints = [Point(4,2,0), Point(5,2,0), Point(5,3,0), Point(4,3,0),  Point(4,2,0)]
+	followPath(wayPoints)
+	      
+	rospy.spin()
