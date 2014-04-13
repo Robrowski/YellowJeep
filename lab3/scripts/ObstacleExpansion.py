@@ -9,17 +9,17 @@ from geometry_msgs.msg import Point
 from nav_msgs.msg import OccupancyGrid  # map in and out
 
 
-def OptimizeOccupancyGrid(map):
+def OptimizeOccupancyGrid(data):
 	global holster
 	print "Deep copy... it takes time to go this deep, and I'm lazy"
-	newmap = copy.deepcopy(map) #need a deeeep copy
+	newmap = copy.deepcopy(data) #need a deeeep copy
 
 	# Set newmap meta data
 	newres = 0.20 #.2m = radius of robot
-	oldRes = map.info.resolution
+	oldRes = data.info.resolution
 	newmap.info.resolution = newres
-	newmap.info.width  = math.trunc(map.info.width*oldRes/newres)
-	newmap.info.height = math.trunc(map.info.height*oldRes/newres) 
+	newmap.info.width  = math.trunc(data.info.width*oldRes/newres)
+	newmap.info.height = math.trunc(data.info.height*oldRes/newres) 
 	w = newmap.info.width
 	h = newmap.info.height 
 	
@@ -112,15 +112,15 @@ if __name__ == '__main__':
 	newMapPub = rospy.Publisher('/newMap', OccupancyGrid, latch=True)
 
 
-	global mapToPublish
-	r = rospy.Rate(0.1) # 1hz
-	while not rospy.is_shutdown():
-		try:
+	#global mapToPublish
+	#r = rospy.Rate(0.1) # 1hz
+	#while not rospy.is_shutdown():
+		#try:
 			#newMapPub.publish(mapToPublish)
-			print "published"
-		except NameError:
-			pass #don't care
-		r.sleep()
+		#	print "published"
+		#except NameError:
+		#	pass #don't care
+		#r.sleep()
 
 	rospy.spin()
 	
