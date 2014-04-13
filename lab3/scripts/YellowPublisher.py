@@ -7,10 +7,10 @@ from MapHolster import *
 class YellowPublisher:    
 	# initializes all publishers and a MapHolster instance
 	def __init__(self, mapTopicName = '/map'):
-		self.frontPub = rospy.Publisher('/frontier', GridCells)
-		self.expandedPub = rospy.Publisher('/expanded', GridCells)    
-		self.pathPub = rospy.Publisher('/path', GridCells)
-		self.wpPub = rospy.Publisher('/wayPoints', GridCells)
+		self.frontPub = rospy.Publisher('/frontier', GridCells, latch=True)
+		self.expandedPub = rospy.Publisher('/expanded', GridCells, latch=True)   
+		self.pathPub = rospy.Publisher('/path', GridCells, latch=True)
+		self.wpPub = rospy.Publisher('/wayPoints', GridCells, latch=True)
 		self.holster = MapHolster(mapTopicName) # Needed to convert points to cells
 		rospy.sleep(rospy.Duration(1.1, 0)) # need to be damn sure teh holster has a map
 

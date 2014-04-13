@@ -32,6 +32,7 @@ def followPath():
 	while True and not rospy.is_shutdown():
 		if len(waypoints) <= 1:
 			continue
+		print "following a path"
 		current = waypoints[0]
 		next = waypoints[1]
 		print current
@@ -43,8 +44,9 @@ def followPath():
 		waypoints.pop(0)
 		
 def gotWaypoints(waypointMsg):
-	global wayPoints
-	wayPoints = waypointMsg.cells
+	global waypoints
+	waypoints = waypointMsg.cells
+	print "got a path"
 
 
 #######################################################################
@@ -140,16 +142,17 @@ if __name__ == '__main__':
 	global current_theta
 	global robotOrientation
 	global pub
-	global wayPoints
-	wayPoints = [Point(0,0,0),Point(0,0,0)]
+	global waypoints
+	waypoints = []
 	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
 	
-	rospy.Subscriber('odom', Odometry, read_odometry, queue_size=1) 
-	rospy.Subscriber('/waypoints', GridCells, gotWaypoints
-		)
+	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1) 
+	rospy.Subscriber('/waypoints', GridCells, gotWaypoints)
 	# Wait, then spin. Exectute trajectory activated by bumper events
-	rospy.sleep(rospy.Duration(.5, 0)) 
+# 	rospy.sleep(rospy.Duration(.5, 0)) 
 	# wayPoints = [Point(4,2,0), Point(5,2,0), Point(5,3,0), Point(4,3,0),  Point(4,2,0)]
-	followPath(wayPoints)
+	print "Ready to follow a path"
+	followPath()
 	      
+
 	rospy.spin()

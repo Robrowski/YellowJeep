@@ -115,7 +115,8 @@ def OptimizeOccupancyGrid(data):
 
 if __name__ == '__main__':
 	rospy.init_node('ObstacleExpander', anonymous=True)
-    # Need a reference to the holster so that the map is ready
+	print "ummmm"
+	# Need a reference to the holster so that the map is ready
 	global holster
 	holster = MapHolster('/map') 
 	
@@ -124,6 +125,7 @@ if __name__ == '__main__':
 
 	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 
+	print "Read to fix maps!"
 	rospy.spin()
 	
 	
