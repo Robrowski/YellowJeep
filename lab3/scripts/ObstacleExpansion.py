@@ -27,8 +27,6 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 			# make sure we are on the map
 			if mx >= 0 and my >= 0:			
 				cVal = holster.readMapPoint(mx,my)
-				
-#				print "current value: " + str(cVal)
 				if cVal == -1:
 					numUnknowns += 1
 					if numUnknowns >= numCellsToCompress*maxUnknownPercent:

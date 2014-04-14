@@ -73,7 +73,7 @@ if __name__ == '__main__':
 	global pub
 	global currentPosition
 # 	currentPosition = 
-	pub = YellowPublisher('/map')
+	pub = YellowPublisher('/newMap')
 	
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1)
 # 	rospy.Subscriber('/map', OccupancyGrid, replan, queue_size=None)

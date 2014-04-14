@@ -35,7 +35,7 @@ def read_odometry(msg):
 
 def followPath():
 	global waypoints
-	fast = .4
+	fast = .19
 #	waypoints.reverse()
 	# for i in range(len(waypoints) - 1):	
 	while True and not rospy.is_shutdown():

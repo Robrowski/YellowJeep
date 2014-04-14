@@ -7,7 +7,7 @@
 from lab3.srv import *
 import rospy, math
 from geometry_msgs.msg import Point
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import *
 from YellowPublisher import *
 from MapHolster      import *
 from AStar 			 import astar
@@ -26,13 +26,13 @@ from AStar 			 import astar
 ######################################################
 def handleCalculatePath(h):
 	global holster
-	global currentPosition
+	global currentPosition, pub
 		
 	start = h.start
 	goal = h.goal
 
 
-	print "start from client" + str(h.start)
+#	print "start from client" + str(h.start)
 	print "start from Rviz " + str(holster.start)
 	print "start from currentPose" + str(holster.convertCellToPoint(currentPosition))
 	
@@ -51,10 +51,12 @@ def handleCalculatePath(h):
 		pass
 	
 	
-	if flag == 2:
+	if flag == 1:
 		print "using robot position as start of A*"
 		start = holster.convertCellToPoint(currentPosition)
 		print start
+		
+		
 ######################################################	
 	## INSERT A* HERE
 	path = astar(start,goal, holster)
@@ -73,16 +75,27 @@ def handleCalculatePath(h):
 	return CalculatePathResponse(path)
 
 def gotOdom(msg):
-	global  currentPosition, flag
+	global  currentPosition, flag, pub, holster
 	flag = 1
 	currentPosition = msg.pose.pose.position
+	pub.sendToExpanded([holster.convertCellToPoint(currentPosition)])
+	print currentPosition
+	
+	newHeader = Header(1,rospy.get_rostime(),'map')
+	p = rospy.Publisher('/poop', GridCells,latch=True)
+	p.publish(GridCells(newHeader, .2,.2, [currentPosition]))
+	
+	
+	
 	#print currentPosition
 	
 if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
     # Need a reference to the holster so that the map is ready
-	global holster, flag
-	holster = MapHolster('/map') 
+	global holster, flag, pub
+	holster = MapHolster('/newMap') 
+	
+	pub = YellowPublisher('/newMap')
 	
 	
 	# Setup up server
