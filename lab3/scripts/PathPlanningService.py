@@ -26,27 +26,38 @@ from AStar 			 import astar
 ######################################################
 def handleCalculatePath(h):
 	global holster
-	
+		
 	start = h.start
 	goal = h.goal
 
+
+	print "start from client" + str(h.start)
+	print "start from Rviz " + str(holster.start)
+	print "start from currentPose" + str(holster.convertCellToPoint(currentPosition))
+	print currentPosition
+
+
+	print "calculating a path"
 	# If None's are received, that is the signal to use the 
 	# start and goal cached in the MapHolster set by Rviz
 	if h.start == Point(0,0,0) or  h.goal == Point(0,0,0):
 		print "Using goal from MapHolster"
 		start = holster.start
 		goal = holster.goal
+		
+
 	else: # use the given start and goals
 		pass
 	
+	global currentPosition
 	if flag == 2:
-		global currentPosition
 		print "using robot position as start of A*"
 		start = holster.convertCellToPoint(currentPosition)
 		print start
 ######################################################	
 	## INSERT A* HERE
 	path = astar(start,goal, holster)
+	
 	
 	
 	# path = resultOfA*
@@ -64,7 +75,7 @@ def gotOdom(msg):
 	global  currentPosition, flag
 	flag = 1
 	currentPosition = msg.pose.pose.position
-
+	#print currentPosition
 	
 if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)

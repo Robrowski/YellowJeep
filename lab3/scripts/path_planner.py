@@ -44,8 +44,8 @@ if __name__ == '__main__':
 	global pub
 	pub = YellowPublisher('/newMap')
 
-	rospy.Subscriber('/move_base_simple/goal',  PoseStamped, gotGoal, queue_size=1)
-	rospy.Subscriber('/initialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
+	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal, queue_size=1)
+	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
 
 	print "Ready for RVIZ to set start and goal"
 	rospy.spin()

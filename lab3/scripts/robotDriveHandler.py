@@ -30,6 +30,7 @@ def read_odometry(msg):
 	
 	currentPosition = msg.pose.pose.position
 	currentOrientation = msg.pose.pose.orientation
+#	print getYaw()
 
 
 def followPath():
@@ -46,8 +47,9 @@ def followPath():
 		print current
 		print next			
 		positionVector = unitVector(current,next)
-		desiredTheta = math.atan2(positionVector.x, positionVector.y)
+		desiredTheta = math.atan2(positionVector.y, positionVector.x)
 		currentTheta = getYaw()
+		print desiredTheta
 		
 		print "desired: " + str(desiredTheta)
 		print "current: " + str(currentTheta)
@@ -63,7 +65,11 @@ def followPath():
 		print "desired-current: " + str(goal_theta)
     
 		rotate(goal_theta )
+		
+		
 		driveStraight(fast,distance(current,next))
+		
+		# check if at waypoint (or close enough, then pop)
 		waypoints.pop(0)
 		
 def gotWaypoints(waypointMsg):

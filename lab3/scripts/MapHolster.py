@@ -19,8 +19,8 @@ class MapHolster:
 		
 		# Automatic subscribers
 		rospy.Subscriber(mapTopicName,  OccupancyGrid, self.mapRecieved, queue_size=None)
-		rospy.Subscriber('/move_base_simple/goal',  PoseStamped, self.goalRecieved, queue_size=None)
-		rospy.Subscriber('/initialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
+		rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, self.goalRecieved, queue_size=None)
+		rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
 			
     #####################################################
     ##########   Grid Cell Utilities   ##################
@@ -122,3 +122,4 @@ class MapHolster:
 		
 	def startRecieved(self, aPoseWithCovarianceStamped):
 		self.start = self.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
+		print aPoseWithCovarianceStamped.pose.pose.position
