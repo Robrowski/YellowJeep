@@ -36,18 +36,20 @@ def followPath():
 	global current_theta, waypoints
 	current_theta = 1
 	fast = .4
-	waypoints.reverse()
+#	waypoints.reverse()
 	# for i in range(len(waypoints) - 1):	
 	while True and not rospy.is_shutdown():
 		if len(waypoints) <= 1:
 			continue
-		print "following a path"
+		print "following a path " + str(len(waypoints)) + " points long"
 		current = waypoints[0]
 		next = waypoints[1]
 		print current
 		print next			
 		positionVector = unitVector(current,next)
 		desiredTheta = math.atan2(positionVector.x, positionVector.y)
+		print desiredTheta
+		print current_theta
 		rotate(desiredTheta - current_theta)
 		driveStraight(fast,distance(current,next))
 		waypoints.pop(0)
@@ -55,7 +57,10 @@ def followPath():
 def gotWaypoints(waypointMsg):
 	global waypoints
 	waypoints = waypointMsg.cells
+	waypoints.reverse()
 	print "got a path"
+	print waypoints
+	
 
 
 #######################################################################
