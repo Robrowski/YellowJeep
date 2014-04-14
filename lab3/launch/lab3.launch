@@ -1,0 +1,13 @@
+<launch>
+
+<node pkg="map_server" type="map_server" name="map_server">
+<rosparam file='$(env HOME)/catkin_ws/src/YellowJeep/maps/simple_map.yaml' command="load"/> 
+</node>
+
+<node pkg="rviz" type="rviz" name="rviz">
+<rosparam file="$(env HOME)/catkin_ws/src/YellowJeep/maps/Robs_rviz_config.rviz" command="load"/>  
+</node>
+
+
+
+</launch>
