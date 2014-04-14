@@ -81,7 +81,7 @@ if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
     # Need a reference to the holster so that the map is ready
 	global holster, flag
-	holster = MapHolster('/newMap') 
+	holster = MapHolster('/map') 
 	
 	
 	# Setup up server

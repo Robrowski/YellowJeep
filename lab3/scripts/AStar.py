@@ -56,7 +56,7 @@ def reconstructPath(parents,start,goal):
 
 #start and goal are Points from gemoetry_msgs.msg
 def astar(start, goal, holster):
-	pub = YellowPublisher('/newMap')
+	pub = YellowPublisher('/map')
 	
 	explored = [] 		#list of explored nodes
 	frontier = [start]	#list of nodes to explore

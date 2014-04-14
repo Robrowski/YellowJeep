@@ -74,13 +74,13 @@ def OptimizeOccupancyGrid(data):
 	oldRes = data.info.resolution
 	w = math.trunc(data.info.width*oldRes/newres)
 	h = math.trunc(data.info.height*oldRes/newres) 
-	
+	####################
 	#Calculate new origin
-	x = data.info.origin.position.x + (newres - oldRes)/2
-	y = data.info.origin.position.y + (newres - oldRes)/2
-	origin = Point(x, y,0)
+	x = data.info.origin.position.x #+ (newres - oldRes)/2
+	y = data.info.origin.position.y #+ (newres - oldRes)/2
+	origin = Point(x-(15.4/3), y-(12.2/3),0)
 	newPose = Pose(origin, data.info.origin.orientation )
-
+################################
 	## Create  new map to send
 	print "Making new map"
 	newHeader = Header(1,rospy.get_rostime(),'map')
