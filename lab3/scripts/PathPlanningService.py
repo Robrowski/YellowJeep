@@ -26,6 +26,7 @@ from AStar 			 import astar
 ######################################################
 def handleCalculatePath(h):
 	global holster
+	global currentPosition
 		
 	start = h.start
 	goal = h.goal
@@ -34,7 +35,7 @@ def handleCalculatePath(h):
 	print "start from client" + str(h.start)
 	print "start from Rviz " + str(holster.start)
 	print "start from currentPose" + str(holster.convertCellToPoint(currentPosition))
-	print currentPosition
+	
 
 
 	print "calculating a path"
@@ -49,7 +50,7 @@ def handleCalculatePath(h):
 	else: # use the given start and goals
 		pass
 	
-	global currentPosition
+	
 	if flag == 2:
 		print "using robot position as start of A*"
 		start = holster.convertCellToPoint(currentPosition)

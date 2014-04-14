@@ -21,15 +21,20 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 	avg = 0
 	
 	# Find number of unknowns + average cost
-	for mx in range(oldx,oldx+cellsPerSide):
-		for my in range(oldy,oldy+cellsPerSide):
-			cVal = holster.readMapPoint(mx,my)
-			if cVal == -1:
-				numUnknowns += 1
-				if numUnknowns >= numCellsToCompress*maxUnknownPercent:
-					return -1 # unknown!
-			else:
-				avg += cVal/numCellsToCompress			
+	c = math.trunc(0.5*cellsPerSide)
+	for mx in     range(oldx - c,  oldx + c):
+		for my in range(oldy - c,  oldy + c):
+			# make sure we are on the map
+			if mx >= 0 and my >= 0:			
+				cVal = holster.readMapPoint(mx,my)
+				
+#				print "current value: " + str(cVal)
+				if cVal == -1:
+					numUnknowns += 1
+					if numUnknowns >= numCellsToCompress*maxUnknownPercent:
+						return -1 # unknown!
+				else:
+					avg += cVal/numCellsToCompress			
 
 	return avg
 
@@ -78,7 +83,7 @@ def OptimizeOccupancyGrid(data):
 	#Calculate new origin
 	x = data.info.origin.position.x #+ (newres - oldRes)/2
 	y = data.info.origin.position.y #+ (newres - oldRes)/2
-	origin = Point(x-(15.4/3), y-(12.2/3),0)
+	origin = Point(x, y,0)
 	newPose = Pose(origin, data.info.origin.orientation )
 ################################
 	## Create  new map to send
@@ -87,10 +92,9 @@ def OptimizeOccupancyGrid(data):
 	metaData = MapMetaData(rospy.get_rostime(), newres,w, h, newPose  )
 	newmap = OccupancyGrid( newHeader, metaData, [])
 	
-	# condense point values
 	print "Condensing old map"
 	newmap.data = [-1]*w*h #clear the list
-	cellsPerSide = math.trunc(newres/oldRes)
+	cellsPerSide = int(math.ceil(newres/oldRes)) # idk... its usually 3.9999
 	for x in range(w):
 		for y in range(h):		
 			######### Function to compress map cells
