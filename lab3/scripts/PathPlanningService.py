@@ -7,6 +7,7 @@
 from lab3.srv import *
 import rospy, math
 from geometry_msgs.msg import Point
+from nav_msgs.msg import Odometry
 from YellowPublisher import *
 from MapHolster      import *
 from AStar 			 import astar
@@ -37,6 +38,12 @@ def handleCalculatePath(h):
 		goal = holster.goal
 	else: # use the given start and goals
 		pass
+	
+	if flag == 2:
+		global currentPosition
+		print "using robot position as start of A*"
+		start = holster.convertCellToPoint(currentPosition)
+		print start
 ######################################################	
 	## INSERT A* HERE
 	path = astar(start,goal, holster)
@@ -53,18 +60,24 @@ def handleCalculatePath(h):
 	# send path back
 	return CalculatePathResponse(path)
 
-
+def gotOdom(msg):
+	global  currentPosition, flag
+	flag = 1
+	currentPosition = msg.pose.pose.position
 
 	
 if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
     # Need a reference to the holster so that the map is ready
-	global holster
+	global holster, flag
 	holster = MapHolster('/newMap') 
 	
 	
 	# Setup up server
 	s = rospy.Service('calculate_path', CalculatePath, handleCalculatePath);
+	rospy.Subscriber('/odom', Odometry, gotOdom, queue_size=1) 
+	flag = 0
+
 	print "Ready to calculate paths!"
 	
 	rospy.spin()

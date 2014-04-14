@@ -33,8 +33,7 @@ def read_odometry(msg):
 
 
 def followPath():
-	global current_theta, waypoints
-	current_theta = 1
+	global waypoints
 	fast = .4
 #	waypoints.reverse()
 	# for i in range(len(waypoints) - 1):	
@@ -48,9 +47,22 @@ def followPath():
 		print next			
 		positionVector = unitVector(current,next)
 		desiredTheta = math.atan2(positionVector.x, positionVector.y)
-		print desiredTheta
-		print current_theta
-		rotate(desiredTheta - current_theta)
+		currentTheta = getYaw()
+		
+		print "desired: " + str(desiredTheta)
+		print "current: " + str(currentTheta)
+		
+		goal_theta = desiredTheta - currentTheta
+		
+		# make sure goal theta is within bounds of +/- pi
+		if goal_theta > math.pi:
+			goal_theta -= 2*math.pi
+		if goal_theta < -math.pi:
+			goal_theta += 2*math.pi
+		
+		print "desired-current: " + str(goal_theta)
+    
+		rotate(goal_theta )
 		driveStraight(fast,distance(current,next))
 		waypoints.pop(0)
 		
@@ -156,6 +168,9 @@ def setArray(currentOrientation):
 
 def getYaw():
 	global currentOrientation	
+	while flag == 0:
+		# Do Nothing	
+		pass
 	quaternion = setArray(currentOrientation)
 	currentYaw = euler_from_quaternion(quaternion)[2]	
 	return currentYaw
@@ -239,12 +254,15 @@ if __name__ == '__main__':
 	global currentPosition, flag
 	global pub
 	global waypoints
+	global currentOrientation
 	flag = 0
+	currentOrientation = 0
 	currentPosition = Point()
 	waypoints = []
 	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
 	
 	r = rospy.Rate(10)
+	
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1) 
 	rospy.Subscriber('/wayPoints', GridCells, gotWaypoints)
 	# Wait, then spin. Exectute trajectory activated by bumper events

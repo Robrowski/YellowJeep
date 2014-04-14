@@ -34,7 +34,7 @@ def frontierPriorityPush():
 # returns the weight/cost to go from point a to point b
 # for simplicity, all weights are equal for the time being
 def weightBetween(a,b):
-	print distance(a,b)
+	#print distance(a,b)
 	return distance(a,b)
 
 # given the list of parents and the start and goal points,
