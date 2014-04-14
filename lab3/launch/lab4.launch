@@ -1,8 +1,8 @@
 <launch>
 
-	<node pkg="lab3" type="ObstacleExpansion.py" name="MapMaker" />
-	<node pkg="lab3" type="path_planner.py" name="path_planner" />
-	<node pkg="lab3" type="PathPlanningService.py" name="path_service" />
-	<node pkg="lab3" type="robotDriveHandler.py" name="drive" />
+	<node pkg="lab3" type="ObstacleExpansion.py" name="MapMaker" required="true" output="screen"/>
+	<node pkg="lab3" type="path_planner.py" name="path_planner" required="true" output="screen"/>
+	<node pkg="lab3" type="PathPlanningService.py" name="path_service" required="true" output="screen"/>
+	<node pkg="lab3" type="robotDriveHandler.py" name="drive" required="true" output="screen"/>
 
 </launch>
