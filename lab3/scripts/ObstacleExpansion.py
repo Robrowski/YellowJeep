@@ -34,7 +34,6 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 						return -1 # unknown!
 				else:
 					avg += cVal/numCellsToCompress			
-
 	return avg
 
 # Looks at a point and its neighbors and decides whether it should increase the value or not
@@ -63,18 +62,12 @@ def expandCell(x,y):
 		return  midPt #old value because we don't really care
 			
 
-	
-
-
 def OptimizeOccupancyGrid(data):
-	print "Got a new Map"
-	
 	## Tuning Constants
 	maxUnknownPercent = 0.50#%   # Used to speed up the condensing step
 	
 	global holster, newmap, newMapPub, w,h
 	
-# 	print "Calculating new MapMetaDatas"
 	# Set newmap meta data
 	newres = 0.20 #.2m = radius of robot
 	oldRes = data.info.resolution
@@ -109,8 +102,7 @@ def OptimizeOccupancyGrid(data):
 			# Set the new value in the new map
 			newmap.data[y*w + x] = math.trunc(newVal)
 	 
-	# for every point
-# 	print "Expanding obstacles"
+
 	expandedMap = [-1]*w*h #clear the list
  	for x in range(w):
   		for y in range(h):
@@ -119,7 +111,6 @@ def OptimizeOccupancyGrid(data):
 	# Use the expanded obstacle map - comment this out if you want high res	
 	#newmap.data = expandedMap
 	
-# 	print "Done making super map. Have a nice day."
 	newMapPub.publish(newmap)
 
 ### TODO: make able to do 2 nodes
