@@ -121,17 +121,21 @@ def OptimizeOccupancyGrid(data):
 	newMapPub.publish(newmap)
 
 
+### 
+### TODO: make able to do 2 nodes
 if __name__ == '__main__':
 	rospy.init_node('ObstacleExpander', anonymous=True)
 	# Need a reference to the holster so that the map is ready
+	WHATMAPAREWEUSING = '/move_base/local_costmap/costmap' # or '/map'
+	
 	global holster
-	holster = MapHolster('/map') 
+	holster = MapHolster(WHATMAPAREWEUSING) 
 	
 	global newMapPub
 	newMapPub = rospy.Publisher('/newMap', OccupancyGrid, latch=True)
 
 #	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
-	rospy.Subscriber('/move_base/global_costmap/costmap',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
+	rospy.Subscriber(WHATMAPAREWEUSING,  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 	
 	print "Ready to fix maps!"
 	rospy.spin()

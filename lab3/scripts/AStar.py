@@ -43,7 +43,7 @@ def calcHeuristic(a,b,holster):
 # 	PIDprime = 1 - PID
 	PIDprime = .6
 	
-	
+						# need MapHolster('cost map version of map')
 	return PID*newHeuristic(a,b) + PIDprime*holster.readMapPoint(a)
 
 
