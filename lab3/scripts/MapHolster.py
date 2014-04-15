@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-import rospy, math
+import rospy, math,tf, threading
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import GridCells
 from std_msgs.msg import Header
 from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
+from tf.transformations import euler_from_quaternion
+
 
 # MapHolster Holds a map and encapsulates grid cell abstraction
 class MapHolster:
@@ -21,6 +23,26 @@ class MapHolster:
 		rospy.Subscriber(mapTopicName,  OccupancyGrid, self.mapRecieved, queue_size=None)
 		rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, self.goalRecieved, queue_size=None)
 		rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
+		
+		# For keeping Updates on robot position
+		self.tfListener = tf.TransformListener()
+		
+	
+	def getCurrentPosition(self):		
+		try:
+			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+			return  Point(trans[0], trans[1], 0)			
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+			print "TF FAIL"
+			return None
+		
+	def getCurrentOrientation(self):	
+		try:
+			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
+			return  euler_from_quaternion( [rot[0],rot[1],rot[2],rot[3]])[2]
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+			print "TF FAIL"
+			return None	
 			
     #####################################################
     ##########   Grid Cell Utilities   ##################

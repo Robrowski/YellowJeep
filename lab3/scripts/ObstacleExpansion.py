@@ -27,6 +27,7 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 			# make sure we are on the map
 			if mx >= 0 and my >= 0:			
 				cVal = holster.readMapPoint(mx,my)
+				
 				if cVal == -1:
 					numUnknowns += 1
 					if numUnknowns >= numCellsToCompress*maxUnknownPercent:
@@ -92,7 +93,12 @@ def OptimizeOccupancyGrid(data):
 	
 	print "Condensing old map"
 	newmap.data = [-1]*w*h #clear the list
-	cellsPerSide = int(math.ceil(newres/oldRes)) # idk... its usually 3.9999
+	cellsPerSide = newres/oldRes
+	if cellsPerSide % 1 >= 0.5:
+		cellsPerSide = int(math.ceil(cellsPerSide)) # idk... its usually 3.9999
+	else:
+		cellsPerSide = int(math.trunc(cellsPerSide))
+		
 	for x in range(w):
 		for y in range(h):		
 			######### Function to compress map cells
@@ -109,7 +115,7 @@ def OptimizeOccupancyGrid(data):
    			expandedMap[y*w + x] = expandCell(x,y  )
   	 			
 	# Use the expanded obstacle map - comment this out if you want high res	
-	newmap.data = expandedMap
+	#newmap.data = expandedMap
 	
 	print "Done making super map. Have a nice day."
 	newMapPub.publish(newmap)
@@ -124,8 +130,9 @@ if __name__ == '__main__':
 	global newMapPub
 	newMapPub = rospy.Publisher('/newMap', OccupancyGrid, latch=True)
 
-	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
-
+#	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
+	rospy.Subscriber('/move_base/global_costmap/costmap',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
+	
 	print "Ready to fix maps!"
 	rospy.spin()
 	

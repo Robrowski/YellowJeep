@@ -32,10 +32,20 @@ def frontierPriorityPush():
 	pass
 
 # returns the weight/cost to go from point a to point b
-# for simplicity, all weights are equal for the time being
+# for simplicity, all weights are equal for the time being 
 def weightBetween(a,b):
 	#print distance(a,b)
 	return distance(a,b)
+
+
+def calcHeuristic(a,b,holster):
+	PID = 1 # H should be between 0 and 1
+# 	PIDprime = 1 - PID
+	PIDprime = .6
+	
+	
+	return PID*newHeuristic(a,b) + PIDprime*holster.readMapPoint(a)
+
 
 # given the list of parents and the start and goal points,
 # return a reconstructed path going from the goal to the start
@@ -64,7 +74,7 @@ def astar(start, goal, holster):
 	g_score = {start:0} #dictionary for best cost to any node from start
 
 	#dictionary of best final scores ( = with heuristic) for each node from start
-	f_score = {start:g_score[start] + newHeuristic(start, goal)} 
+	f_score = {start:g_score[start] + calcHeuristic(start, goal,holster)} 
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
 
@@ -92,11 +102,11 @@ def astar(start, goal, holster):
 		### THE LAST VALUE PUT INTO THIS FUNCTION DETERMINES HOW 
 		### CRAPPY A PATH A* MIGHT TAKE
 		##########################################################
-		neighbors = holster.getEightAdjacentPoints(current.x, current.y, 30)
+		neighbors = holster.getEightAdjacentPoints(current.x, current.y, 65)
 		for neighbor in neighbors:
 			better = False
 			temp_g = g_score[current] + weightBetween(current,neighbor)
-			temp_f =  temp_g + newHeuristic(neighbor,goal)
+			temp_f =  temp_g + calcHeuristic(neighbor,goal,holster) 
 
 			if (neighbor in explored): 
 				continue

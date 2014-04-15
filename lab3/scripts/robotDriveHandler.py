@@ -34,25 +34,30 @@ def read_odometry(msg):
 
 
 def followPath():
-	global waypoints
-	fast = .19
+	global waypoints, currentPosition, holster, pub
+	fast = .07
 #	waypoints.reverse()
 	# for i in range(len(waypoints) - 1):	
-	while True and not rospy.is_shutdown():
+	r = rospy.Rate(1)
+	while  not rospy.is_shutdown():
 		if len(waypoints) <= 1:
 			continue
 		print "following a path " + str(len(waypoints)) + " points long"
-		current = waypoints[0]
+# 		current = waypoints[0]
+		current = holster.getCurrentPosition()
+# 		currentTheta = getYaw()
+		currentTheta = holster.getCurrentOrientation()
 		next = waypoints[1]
 		print current
+		
 		print next			
 		positionVector = unitVector(current,next)
 		desiredTheta = math.atan2(positionVector.y, positionVector.x)
-		currentTheta = getYaw()
+
 		print desiredTheta
 		
-		print "desired: " + str(desiredTheta)
-		print "current: " + str(currentTheta)
+		print "desired theta: " + str(desiredTheta)
+		print "current theta: " + str(currentTheta)
 		
 		goal_theta = desiredTheta - currentTheta
 		
@@ -63,21 +68,33 @@ def followPath():
 			goal_theta += 2*math.pi
 		
 		print "desired-current: " + str(goal_theta)
-    
-		rotate(goal_theta )
 		
-		
-		driveStraight(fast,distance(current,next))
-		
-		# check if at waypoint (or close enough, then pop)
-		waypoints.pop(0)
-		
+		if math.fabs(goal_theta) > math.pi/20:
+			rotate(goal_theta)
+# 		driveStraight(fast,distance(current,next))
+# 		waypoints.pop(0)
+		print "position: "
+		print holster.getCurrentPosition()
+		print "next"
+		#print holster.newGridCell(next)
+		print next
+		print 	"Distance to next: " + str(distance(holster.getCurrentPosition(), (next)))
+
+		if distance(holster.getCurrentPosition(), next) > 0.08:
+			pub.publish(createTwist(fast,0))	
+		else:
+			# stop
+			pub.publish(createTwist(0,0))
+			# check if at waypoint (or close enough, then pop)
+			waypoints.pop(0)
+		r.sleep()
+	
 def gotWaypoints(waypointMsg):
 	global waypoints
 	waypoints = waypointMsg.cells
 	waypoints.reverse()
-	print "got a path"
-	print waypoints
+	print "Drive got a path"
+	#print waypoints
 	
 
 
@@ -257,10 +274,11 @@ if __name__ == '__main__':
 	rospy.init_node('pathFollow', anonymous=True)
 # 	global current_theta
 # 	global robotOrientation
-	global currentPosition, flag
+	global currentPosition,currentOrientation, holster
+
 	global pub
 	global waypoints
-	global currentOrientation
+	global flag
 	flag = 0
 	currentOrientation = 0
 	currentPosition = Point()
@@ -268,8 +286,12 @@ if __name__ == '__main__':
 	pub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)
 	
 	r = rospy.Rate(10)
-	
+
+	holster = MapHolster('/newMap')
+
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1) 
+	
+	
 	rospy.Subscriber('/wayPoints', GridCells, gotWaypoints)
 	# Wait, then spin. Exectute trajectory activated by bumper events
 # 	rospy.sleep(rospy.Duration(.5, 0)) 

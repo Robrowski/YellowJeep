@@ -76,8 +76,8 @@ if __name__ == '__main__':
 	pub = YellowPublisher('/newMap')
 	
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1)
-# 	rospy.Subscriber('/map', OccupancyGrid, replan, queue_size=None)
-	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal, queue_size=1)
+	rospy.Subscriber('/map', OccupancyGrid, gotGoal, queue_size=None)
+	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal, queue_size=None)
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
 
 	print "Ready for RVIZ to set start and goal"
