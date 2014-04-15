@@ -14,10 +14,11 @@ from mapUtils import *
 from nav_msgs.msg import OccupancyGrid
 from nav_msgs.msg import Odometry
 
+
 ######################################################
 # Sends service request to get A* going
 def gotGoal(msg):	
-	global pub
+	global pub,TIMMAHFLAG
 
 	pub.clearTopics()
 	print "Got a goal from RVIZ!!"
@@ -33,6 +34,7 @@ def gotGoal(msg):
 		
 		waypoints = extractWaypoints(path)
 		pub.sendToWaypoints( waypoints)	
+		TIMMAHFLAG = True
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
 
@@ -61,7 +63,8 @@ def gotStart(msg):
 # 		print "Service call failed: %s"%e
 	
 def read_odometry(msg):
-	global currentPosition
+	global currentPosition, TIMMAHFLAG
+	TIMMAHFLAG = False
 	
 # 	flag = 1 # Used for other functions to know when first odometry reading was executed
 	
@@ -73,7 +76,7 @@ if __name__ == '__main__':
 	global pub
 	global currentPosition
 # 	currentPosition = 
-	pub = YellowPublisher('/newMap')
+	pub = YellowPublisher('/map_yellow')
 	
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1)
 	rospy.Subscriber('/map', OccupancyGrid, gotGoal, queue_size=None)
@@ -81,6 +84,12 @@ if __name__ == '__main__':
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
 
 	print "Ready for RVIZ to set start and goal"
+
+	### TODO: probably call AStar more
+	rospy.Timer(rospy.Duration(9), gotGoal)
+		
+
+	
 	rospy.spin()
 	
 

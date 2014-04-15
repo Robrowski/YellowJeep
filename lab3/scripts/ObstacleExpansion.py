@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rospy, math, copy, time
+import rospy, math, copy, time, sys
 from MapHolster import *
 from YellowPublisher import *
 from mapUtils import *
@@ -67,12 +67,14 @@ def expandCell(x,y):
 
 
 def OptimizeOccupancyGrid(data):
+	print "Got a new Map"
+	
 	## Tuning Constants
 	maxUnknownPercent = 0.50#%   # Used to speed up the condensing step
 	
 	global holster, newmap, newMapPub, w,h
 	
-	print "Calculating new MapMetaDatas"
+# 	print "Calculating new MapMetaDatas"
 	# Set newmap meta data
 	newres = 0.20 #.2m = radius of robot
 	oldRes = data.info.resolution
@@ -86,12 +88,12 @@ def OptimizeOccupancyGrid(data):
 	newPose = Pose(origin, data.info.origin.orientation )
 ################################
 	## Create  new map to send
-	print "Making new map"
+# 	print "Making new map"
 	newHeader = Header(1,rospy.get_rostime(),'map')
 	metaData = MapMetaData(rospy.get_rostime(), newres,w, h, newPose  )
 	newmap = OccupancyGrid( newHeader, metaData, [])
 	
-	print "Condensing old map"
+# 	print "Condensing old map"
 	newmap.data = [-1]*w*h #clear the list
 	cellsPerSide = newres/oldRes
 	if cellsPerSide % 1 >= 0.5:
@@ -108,7 +110,7 @@ def OptimizeOccupancyGrid(data):
 			newmap.data[y*w + x] = math.trunc(newVal)
 	 
 	# for every point
-	print "Expanding obstacles"
+# 	print "Expanding obstacles"
 	expandedMap = [-1]*w*h #clear the list
  	for x in range(w):
   		for y in range(h):
@@ -117,25 +119,22 @@ def OptimizeOccupancyGrid(data):
 	# Use the expanded obstacle map - comment this out if you want high res	
 	#newmap.data = expandedMap
 	
-	print "Done making super map. Have a nice day."
+# 	print "Done making super map. Have a nice day."
 	newMapPub.publish(newmap)
 
-
-### 
 ### TODO: make able to do 2 nodes
 if __name__ == '__main__':
-	rospy.init_node('ObstacleExpander', anonymous=True)
-	# Need a reference to the holster so that the map is ready
-	WHATMAPAREWEUSING = '/move_base/local_costmap/costmap' # or '/map'
+	MAPISCOMINGFROM = sys.argv[1] # assume one arg
+	rospy.init_node('ObstacleExpander_'  , anonymous=True)
 	
 	global holster
-	holster = MapHolster(WHATMAPAREWEUSING) 
+	holster = MapHolster(MAPISCOMINGFROM) 
 	
 	global newMapPub
-	newMapPub = rospy.Publisher('/newMap', OccupancyGrid, latch=True)
+	newMapPub = rospy.Publisher(MAPISCOMINGFROM + "_yellow", OccupancyGrid, latch=True)
 
 #	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
-	rospy.Subscriber(WHATMAPAREWEUSING,  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
+	rospy.Subscriber(MAPISCOMINGFROM,  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 	
 	print "Ready to fix maps!"
 	rospy.spin()

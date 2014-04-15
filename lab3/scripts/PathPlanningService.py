@@ -42,7 +42,7 @@ def handleCalculatePath(h):
 		
 ######################################################	
 	## INSERT A* HERE
-	path = astar(start,goal, holster)
+	path = astar(start,goal, holster,costMap)
 	
 	
 	return CalculatePathResponse(path)
@@ -51,9 +51,12 @@ def handleCalculatePath(h):
 if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
     # Need a reference to the holster so that the map is ready
-	global holster, flag, pub,currentPosition
-	holster = MapHolster('/newMap') 
-	pub = YellowPublisher('/newMap')
+	global holster, flag, pub,currentPosition,costMap
+	holster = MapHolster('/map_yellow') 
+	pub = YellowPublisher('/map_yellow')
+	costMap = MapHolster('/move_base/local_costmap/costmap_yellow')
+	
+	
 	
 	# Setup up server
 	rospy.Service('calculate_path', CalculatePath, handleCalculatePath);

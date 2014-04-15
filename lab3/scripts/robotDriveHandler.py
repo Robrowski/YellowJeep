@@ -35,59 +35,66 @@ def read_odometry(msg):
 
 def followPath():
 	global waypoints, currentPosition, holster, pub
-	fast = .07
-#	waypoints.reverse()
+	fast = 0.13
+	turningTolerance = math.pi/15    # radians
+	distanceToGoalTolerance = 0.08   #  cm
+	directionUpdateRate = 2
+
+
+
+	waypoints.reverse()
 	# for i in range(len(waypoints) - 1):	
-	r = rospy.Rate(1)
+	r = rospy.Rate(directionUpdateRate)
 	while  not rospy.is_shutdown():
 		if len(waypoints) <= 1:
 			continue
-		print "following a path " + str(len(waypoints)) + " points long"
-# 		current = waypoints[0]
-		current = holster.getCurrentPosition()
-# 		currentTheta = getYaw()
-		currentTheta = holster.getCurrentOrientation()
-		next = waypoints[1]
-		print current
-		
-		print next			
-		positionVector = unitVector(current,next)
-		desiredTheta = math.atan2(positionVector.y, positionVector.x)
-
-		print desiredTheta
-		
-		print "desired theta: " + str(desiredTheta)
-		print "current theta: " + str(currentTheta)
-		
-		goal_theta = desiredTheta - currentTheta
-		
-		# make sure goal theta is within bounds of +/- pi
-		if goal_theta > math.pi:
-			goal_theta -= 2*math.pi
-		if goal_theta < -math.pi:
-			goal_theta += 2*math.pi
-		
-		print "desired-current: " + str(goal_theta)
-		
-		if math.fabs(goal_theta) > math.pi/20:
-			rotate(goal_theta)
-# 		driveStraight(fast,distance(current,next))
-# 		waypoints.pop(0)
-		print "position: "
-		print holster.getCurrentPosition()
-		print "next"
-		#print holster.newGridCell(next)
-		print next
-		print 	"Distance to next: " + str(distance(holster.getCurrentPosition(), (next)))
-
-		if distance(holster.getCurrentPosition(), next) > 0.08:
-			pub.publish(createTwist(fast,0))	
-		else:
-			# stop
-			pub.publish(createTwist(0,0))
-			# check if at waypoint (or close enough, then pop)
-			waypoints.pop(0)
-		r.sleep()
+		else: 
+			next = waypoints[1]
+			print "following a path " + str(len(waypoints)) + " points long"
+	# 		current = waypoints[0]
+			current = holster.getCurrentPosition()
+	# 		currentTheta = getYaw()
+			currentTheta = holster.getCurrentOrientation()
+			print current
+			
+			print next			
+			positionVector = unitVector(current,next)
+			desiredTheta = math.atan2(positionVector.y, positionVector.x)
+	
+			print desiredTheta
+			
+			print "desired theta: " + str(desiredTheta)
+			print "current theta: " + str(currentTheta)
+			
+			goal_theta = desiredTheta - currentTheta
+			
+			# make sure goal theta is within bounds of +/- pi
+			if goal_theta > math.pi:
+				goal_theta -= 2*math.pi
+			if goal_theta < -math.pi:
+				goal_theta += 2*math.pi
+			
+			print "desired-current: " + str(goal_theta)
+			
+			if math.fabs(goal_theta) > turningTolerance:
+				rotate(goal_theta)
+	# 		driveStraight(fast,distance(current,next))
+	# 		waypoints.pop(0)
+			print "position: "
+			print holster.getCurrentPosition()
+			print "next"
+			#print holster.newGridCell(next)
+			print next
+			print 	"Distance to next: " + str(distance(holster.getCurrentPosition(), (next)))
+	
+			if distance(holster.getCurrentPosition(), next) > distanceToGoalTolerance:
+				pub.publish(createTwist(fast,0))	
+			else:
+				# stop
+				pub.publish(createTwist(0,0))
+				# check if at waypoint (or close enough, then pop)
+				waypoints.pop(0)
+			r.sleep()
 	
 def gotWaypoints(waypointMsg):
 	global waypoints

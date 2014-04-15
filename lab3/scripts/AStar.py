@@ -38,13 +38,21 @@ def weightBetween(a,b):
 	return distance(a,b)
 
 
-def calcHeuristic(a,b,holster):
+def calcHeuristic(a,b,holster,costMap):
+	
 	PID = 1 # H should be between 0 and 1
 # 	PIDprime = 1 - PID
-	PIDprime = .6
+	PIDprime = .9
+	
+	
+	
+	costOfCurrent = costMap.readMapPoint( costMap.convertCellToPoint(  holster.newGridCell( a  )))
+	# Poor implementation decisions in the past...
+	if costOfCurrent == -1:
+		costOfCurrent = 0 
 	
 						# need MapHolster('cost map version of map')
-	return PID*newHeuristic(a,b) + PIDprime*holster.readMapPoint(a)
+	return PID*newHeuristic(a,b) + PIDprime*costOfCurrent
 
 
 # given the list of parents and the start and goal points,
@@ -65,8 +73,8 @@ def reconstructPath(parents,start,goal):
 	return path
 
 #start and goal are Points from gemoetry_msgs.msg
-def astar(start, goal, holster):
-	pub = YellowPublisher('/newMap')
+def astar(start, goal, holster, costMap):
+	pub = YellowPublisher('/map_yellow')
 	
 	explored = [] 		#list of explored nodes
 	frontier = [start]	#list of nodes to explore
@@ -74,7 +82,7 @@ def astar(start, goal, holster):
 	g_score = {start:0} #dictionary for best cost to any node from start
 
 	#dictionary of best final scores ( = with heuristic) for each node from start
-	f_score = {start:g_score[start] + calcHeuristic(start, goal,holster)} 
+	f_score = {start:g_score[start] + calcHeuristic(start, goal,holster,costMap)} 
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
 
@@ -106,7 +114,7 @@ def astar(start, goal, holster):
 		for neighbor in neighbors:
 			better = False
 			temp_g = g_score[current] + weightBetween(current,neighbor)
-			temp_f =  temp_g + calcHeuristic(neighbor,goal,holster) 
+			temp_f =  temp_g + calcHeuristic(neighbor,goal,holster,costMap) 
 
 			if (neighbor in explored): 
 				continue

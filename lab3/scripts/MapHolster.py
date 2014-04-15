@@ -14,7 +14,7 @@ from tf.transformations import euler_from_quaternion
 class MapHolster:
     
 	# Reads map meta data and saves to object constants
-	def __init__(self, mapTopicName = '/map'):
+	def __init__(self, mapTopicName = '/map_yellow'):
 		# Default stuff
 		self.goal = Point(1,1,0)  # default
 		self.start = Point(1,1,0) # default		
@@ -26,7 +26,7 @@ class MapHolster:
 		
 		# For keeping Updates on robot position
 		self.tfListener = tf.TransformListener()
-		
+		self.hasMap = False
 	
 	def getCurrentPosition(self):		
 		try:
@@ -49,6 +49,7 @@ class MapHolster:
     #####################################################
     # makes a grid cell with the x/y indices from the map
     # can also take a Point object
+    #GLOBAL COORDINATES IN REAL LIFE
 	def newGridCell(self,x, y = None):
         #X is actually a Point object in this case
 		if y == None:
@@ -67,6 +68,7 @@ class MapHolster:
 		return cells
 
 	# converts a random cell to be the nearest map Point(whole numbers!)
+    # ABSTRACTED POINTS
 	def convertCellToPoint(self, aCell):
 		mx = math.trunc((aCell.x - self.gridOrigin.x + self.gridResolution/2) / self.gridResolution)
 		my = math.trunc((aCell.y - self.gridOrigin.y + self.gridResolution/2) / self.gridResolution)
@@ -138,10 +140,11 @@ class MapHolster:
 		self.mapOrigin  = aMap.info.origin.position 
 		self.gridResolution = aMap.info.resolution # assume square map
 		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
-	
+		self.hasMap = True
 	def goalRecieved(self, aStampedPose):
-		self.goal = self.convertCellToPoint(aStampedPose.pose.position)
+		if self.hasMap:
+			self.goal = self.convertCellToPoint(aStampedPose.pose.position)
 		
 	def startRecieved(self, aPoseWithCovarianceStamped):
-		self.start = self.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
-		print aPoseWithCovarianceStamped.pose.pose.position
+		if self.hasMap:
+			self.start = self.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
