@@ -1,18 +1,12 @@
 #!/usr/bin/env python
 
-##############################################################################
-# Ros Imports
-##############################################################################
 import rospy, math
-
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Point, PoseStamped
 from YellowPublisher import *
 from MapHolster import *
 from lab3.srv import *
-from geometry_msgs.msg import PoseStamped
 from mapUtils import *
-from nav_msgs.msg import OccupancyGrid
-from nav_msgs.msg import Odometry
+from nav_msgs.msg import OccupancyGrid, Odometry
 
 
 ######################################################
@@ -26,8 +20,7 @@ def gotGoal(msg):
 	rospy.wait_for_service('calculate_path')
 	try:
 		calculate_path = rospy.ServiceProxy('calculate_path', CalculatePath)
-		#resp = calculate_path(Point(1,3,0), Point(10,10,0)) # Could send an actual point
-		resp = calculate_path(None, None) # None = use RViz topics as setpoints
+		resp = calculate_path(None, None) # None = use RViz topics as set points
 		
 		path = resp.path	
 		pub.sendToPath( path)
@@ -36,7 +29,7 @@ def gotGoal(msg):
 		pub.sendToWaypoints( waypoints)	
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
-
+		
 def clearGridCells(msg):
 	global pub
 	pub.clearTopics()
@@ -59,5 +52,3 @@ if __name__ == '__main__':
 	print "Ready for RVIZ to set start and goal"
 	rospy.spin()
 	
-
-

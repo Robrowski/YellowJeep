@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from nav_msgs.msg import GridCells #because publishers have to know
+from nav_msgs.msg import GridCells 
 from MapHolster import *
 
 ## A class for publishing stuff for TeamYellowJeep

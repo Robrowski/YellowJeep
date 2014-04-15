@@ -36,7 +36,7 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 					avg += cVal/numCellsToCompress			
 	return avg
 
-# Looks at a point and its neighbors and decides whether it should increase the value or not
+# Looks at a point and its neighbours and decides whether it should increase the value or not
 def expandCell(x,y):
 	global newmap,w,h
 	# Center point in consideration
@@ -73,20 +73,18 @@ def OptimizeOccupancyGrid(data):
 	oldRes = data.info.resolution
 	w = math.trunc(data.info.width*oldRes/newres)
 	h = math.trunc(data.info.height*oldRes/newres) 
-	####################
+
 	#Calculate new origin
-	x = data.info.origin.position.x #+ (newres - oldRes)/2
-	y = data.info.origin.position.y #+ (newres - oldRes)/2
+	x = data.info.origin.position.x 
+	y = data.info.origin.position.y 
 	origin = Point(x, y,0)
 	newPose = Pose(origin, data.info.origin.orientation )
-################################
+
 	## Create  new map to send
-# 	print "Making new map"
 	newHeader = Header(1,rospy.get_rostime(),'map')
 	metaData = MapMetaData(rospy.get_rostime(), newres,w, h, newPose  )
 	newmap = OccupancyGrid( newHeader, metaData, [])
 	
-# 	print "Condensing old map"
 	newmap.data = [-1]*w*h #clear the list
 	cellsPerSide = newres/oldRes
 	if cellsPerSide % 1 >= 0.5:
@@ -98,8 +96,6 @@ def OptimizeOccupancyGrid(data):
 		for y in range(h):		
 			######### Function to compress map cells
 			newVal = cellShrinker(x,y, cellsPerSide, maxUnknownPercent)
-		
-			# Set the new value in the new map
 			newmap.data[y*w + x] = math.trunc(newVal)
 	 
 
@@ -124,11 +120,7 @@ if __name__ == '__main__':
 	global newMapPub
 	newMapPub = rospy.Publisher(MAPISCOMINGFROM + "_yellow", OccupancyGrid, latch=True)
 
-#	rospy.Subscriber('/map',  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 	rospy.Subscriber(MAPISCOMINGFROM,  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
 	
 	print "Ready to fix maps!"
 	rospy.spin()
-	
-	
-	

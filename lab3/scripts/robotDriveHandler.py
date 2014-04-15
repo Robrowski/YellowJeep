@@ -9,7 +9,7 @@ from MapHolster import *
 from mapUtils import *
 from tf.transformations import euler_from_quaternion
 
-
+# Reads the odometry
 def read_odometry(msg):
 	global currentOrientation, currentPosition, flag
 	
@@ -18,67 +18,18 @@ def read_odometry(msg):
 	currentPosition = msg.pose.pose.position
 	currentOrientation = msg.pose.pose.orientation
 
-
-def followPath():
-	global waypoints, currentPosition, holster, pub
-	fast = 0.13
-	turningTolerance = math.pi/10    # radians
-	distanceToGoalTolerance = 0.08   #  cm
-	directionUpdateRate = 2
-
-	waypoints.reverse()
-	# for i in range(len(waypoints) - 1):	
-	r = rospy.Rate(directionUpdateRate)
-	while  not rospy.is_shutdown():
-		try: 
-			next = waypoints[1]
-			#print "following a path " + str(len(waypoints)) + " points long"
-			current = holster.getCurrentPosition()
-			currentTheta = holster.getCurrentOrientation()
-
-			positionVector = unitVector(current,next)
-			desiredTheta = math.atan2(positionVector.y, positionVector.x)
-	
-			#print "desired theta: " + str(desiredTheta)
-			#print "current theta: " + str(currentTheta)
-			
-			goal_theta = desiredTheta - currentTheta
-			
-			# make sure goal theta is within bounds of +/- pi
-			if goal_theta > math.pi:
-				goal_theta -= 2*math.pi
-			if goal_theta < -math.pi:
-				goal_theta += 2*math.pi
-			
-			#print "desired-current: " + str(goal_theta)
-			
-			if math.fabs(goal_theta) > turningTolerance:
-				rotate(goal_theta)
-
-			#print "position: "
-			print holster.getCurrentPosition()
-			#print "next"
-			#print holster.newGridCell(next)
-			print next
-			print 	"Distance to next: " + str(distance(holster.getCurrentPosition(), (next)))
-	
-			if distance(holster.getCurrentPosition(), next) > distanceToGoalTolerance:
-				pub.publish(createTwist(fast,0))	
-			else:
-				# stop
-				pub.publish(createTwist(0,0))
-				# check if at waypoint (or close enough, then pop)
-				waypoints.pop(0)
-			r.sleep()
-		except  IndexError:	
-			continue
+def getYaw():
+	global currentOrientation	
+	while flag == 0: #wait until an odometry message comes in
+		pass
+	quaternion = setArray(currentOrientation)
+	currentYaw = euler_from_quaternion(quaternion)[2]	
+	return currentYaw
 			
 def gotWaypoints(waypointMsg):
 	global waypoints
 	waypoints = waypointMsg.cells
 	waypoints.reverse()
-	print "Drive got a path"
-	#print waypoints
 	
 
 # Accepts an angle and makes the robot rotate around it.
@@ -86,14 +37,6 @@ def setArray(currentOrientation):
 	quaternion = [currentOrientation.x,currentOrientation.y,currentOrientation.z,currentOrientation.w]
 	return quaternion
 
-def getYaw():
-	global currentOrientation	
-	while flag == 0:
-		# Do Nothing	
-		pass
-	quaternion = setArray(currentOrientation)
-	currentYaw = euler_from_quaternion(quaternion)[2]	
-	return currentYaw
 
 def createTwist(u,w):
 	twist = Twist()
@@ -104,7 +47,7 @@ def createTwist(u,w):
 def rotate(angle):
 	totalAngle = 0
 	
-	# Changle angular direction based on input angle
+	# Change angular direction based on input angle
 	if angle > 0:
 		speed = 0.7
 	else:
@@ -164,6 +107,51 @@ def driveStraight(speed, distance):
 		distanceTraveled = (((currentPosition.x-initialPosition.x)**2)+((currentPosition.y-initialPosition.y)**2))**0.5	# Distance formula
 		r.sleep()	# Required to ensure publishing is not too fast and queue does not mess up
 		
+
+# Main function to follow a path
+def followPath():
+	global waypoints, currentPosition, holster, pub
+	# TUNING FUNCTIONS
+	fast = 0.13
+	turningTolerance = math.pi/10    # radians
+	distanceToGoalTolerance = 0.08   #  cm
+	directionUpdateRate = 2
+
+
+	r = rospy.Rate(directionUpdateRate)
+	while  not rospy.is_shutdown():
+		try: 
+			next = waypoints[1] #could get set at any time by callbacks
+			current = holster.getCurrentPosition()
+			currentTheta = holster.getCurrentOrientation()
+
+			pathVector = unitVector(current,next)
+			desiredTheta = math.atan2(pathVector.y, pathVector.x)
+	
+			goal_theta = desiredTheta - currentTheta
+			
+			# make sure goal theta is within bounds of +/- pi
+			if goal_theta > math.pi:
+				goal_theta -= 2*math.pi
+			if goal_theta < -math.pi:
+				goal_theta += 2*math.pi
+			
+			# Rotate if the current orientation is out of tolerances
+			if math.fabs(goal_theta) > turningTolerance:
+				rotate(goal_theta)
+
+			# Send robot forward if not at the next waypoint
+			if distance(holster.getCurrentPosition(), next) > distanceToGoalTolerance:
+				pub.publish(createTwist(fast,0))	
+			else:
+				pub.publish(createTwist(0,0)) #stop
+				waypoints.pop(0)
+				print "Arrived at a way point"
+			r.sleep()
+		except  IndexError:	
+			continue		
+		
+		
 if __name__ == '__main__':
 	rospy.init_node('pathFollow', anonymous=True)
 
@@ -177,7 +165,7 @@ if __name__ == '__main__':
 	
 	r = rospy.Rate(10)
 
-	holster = MapHolster('/newMap')
+	holster = MapHolster('/map_yellow')
 
 	rospy.Subscriber('/odom', Odometry, read_odometry, queue_size=1) 	
 	rospy.Subscriber('/wayPoints', GridCells, gotWaypoints)

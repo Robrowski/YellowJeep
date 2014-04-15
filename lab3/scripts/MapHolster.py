@@ -9,8 +9,7 @@ from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
 
-
-# MapHolster Holds a map and encapsulates grid cell abstraction
+# MapHolster Holds a map and encapsulates grid cell abstraction and more!
 class MapHolster:
     
 	# Reads map meta data and saves to object constants
@@ -28,6 +27,7 @@ class MapHolster:
 		self.tfListener = tf.TransformListener()
 		self.hasMap = False
 	
+	# Reads the tf stack and returns the location of the robot on the map
 	def getCurrentPosition(self):		
 		try:
 			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
@@ -35,7 +35,8 @@ class MapHolster:
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 			print "TF FAIL"
 			return None
-		
+	
+	# Reads the tf stack and returns the orientation of the robot on the map	
 	def getCurrentOrientation(self):	
 		try:
 			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))

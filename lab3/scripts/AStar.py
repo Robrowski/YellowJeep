@@ -11,10 +11,8 @@ from MapHolster import *
 from mapUtils import *
 
 ######################################################
-######################################################
 # A-Star Helper Functions
 ######################################################
-
 # given the current frontier and a dictionary of all 
 # f_scores, return the lowest scoring node on the frontier
 def getLowestF(frontier,f_score):
@@ -29,30 +27,27 @@ def getLowestF(frontier,f_score):
 # dictionary back to a point, like currently used in
 # getLowestF()
 def frontierPriorityPush():
-	pass
+	pass #TODO
 
 # returns the weight/cost to go from point a to point b
 # for simplicity, all weights are equal for the time being 
 def weightBetween(a,b):
-	#print distance(a,b)
 	return distance(a,b)
 
 
-def calcHeuristic(a,b,holster,costMap):
-	
-	PID = 1 # H should be between 0 and 1
-# 	PIDprime = 1 - PID
+# Calculates the h(n) between two points
+# Two holsters are given to get map data from each
+def calcHeuristic(current, goal,globalMapHolster,costMapHolster):
+	PID = 1 # H should be between 0 and 1 to be admissible
 	PIDprime = .9
-	
-	
-	
-	costOfCurrent = costMap.readMapPoint( costMap.convertCellToPoint(  holster.newGridCell( a  )))
-	# Poor implementation decisions in the past...
+		
+	currentInWorldCoords = costMapHolster.convertCellToPoint(  globalMapHolster.newGridCell(current))
+	costOfCurrent = costMapHolster.readMapPoint(currentInWorldCoords)
 	if costOfCurrent == -1:
-		costOfCurrent = 0 
+		costOfCurrent = 0 # Set to zero to not make h(n) lower
 	
-						# need MapHolster('cost map version of map')
-	return PID*newHeuristic(a,b) + PIDprime*costOfCurrent
+	# newHeuristic is an optimized distance function to account for constraints
+	return PID*newHeuristic(current,goal) + PIDprime*costOfCurrent
 
 
 # given the list of parents and the start and goal points,
@@ -86,7 +81,6 @@ def astar(start, goal, holster, costMap):
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
 
-	#	r = rospy.Rate(100)# 100hz for animation
 	while frontier:
 		#get the lowest node from the frontier to explore next
 		current = getLowestF(frontier,f_score)
@@ -102,10 +96,8 @@ def astar(start, goal, holster, costMap):
 		frontier.remove(current)
 
 		#for animating, publish on every iteration
-	#	pub.sendToExpanded(explored) 
 		pub.sendToFrontier(frontier) # only need to see frontier to understand progress
 
-		#get all eight connected neighbour
 		##########################################################
 		### THE LAST VALUE PUT INTO THIS FUNCTION DETERMINES HOW 
 		### CRAPPY A PATH A* MIGHT TAKE
@@ -134,9 +126,7 @@ def astar(start, goal, holster, costMap):
 				f_score[neighbor] = temp_f
 
 	
-	print "Nodes Expanded: " + str( len(explored))
-	#pub.sendToExpanded(explored)
+	print "Nodes Expanded by A*: " + str( len(explored))
 	pub.sendToFrontier(frontier)
 	path = reconstructPath(parents,start,goal)
-#	pub.sendToPath(path)
 	return path

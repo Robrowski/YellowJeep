@@ -1,9 +1,5 @@
 #!/usr/bin/env python
 
-#Purpose: Extra Credit (+15 pts) 
-# On the real robot, you will need to constantly rerun A* as the robot learns more about the world. Design 
-# your code to continuously run as a dedicated path-planning node. It should provide a service which 
-# takes in a start and end position, and returns a path (or an error if no path exists).
 from lab3.srv import *
 import rospy, math, tf
 from geometry_msgs.msg import Point
@@ -12,10 +8,9 @@ from YellowPublisher import *
 from MapHolster      import *
 from AStar 			 import astar
 
-
+# Calculates a path when told to
 def handleCalculatePath(h):
-	global holster
-	global currentPosition, pub
+	global globalMapHolster, costMapHolster
 		
 	start = h.start
 	goal = h.goal
@@ -25,46 +20,26 @@ def handleCalculatePath(h):
 	# start and goal cached in the MapHolster set by Rviz
 	if h.start == Point(0,0,0) or  h.goal == Point(0,0,0):
 		print "Using goal from MapHolster"
-		start = holster.start
-		goal = holster.goal
+		start = globalMapHolster.start
+		goal = globalMapHolster.goal
 		
-	else: # use the given start and goals
-		pass
+	#use the robots actual position as the start	
+	if globalMapHolster.getCurrentPosition() != None: 
+		print "Using robot position as start of A*"
+		start = globalMapHolster.convertCellToPoint(globalMapHolster.getCurrentPosition())
 		
-	if holster.getCurrentPosition() != None:
-		print "using robot position as start of A*"
-		start = holster.convertCellToPoint(holster.getCurrentPosition())
-		print start
-			
-		newHeader = Header(1,rospy.get_rostime(),'map')
-		p = rospy.Publisher('/poop', GridCells,latch=True)
-		p.publish(GridCells(newHeader, .2,.2, [holster.getCurrentPosition()]))
-		
-######################################################	
-	## INSERT A* HERE
-	path = astar(start,goal, holster,costMap)
-	
-	
+	path = astar(start,goal, globalMapHolster,costMapHolster)
 	return CalculatePathResponse(path)
 
-	
+# Initialize a server that only handles A* requests
 if __name__ == '__main__':
 	rospy.init_node('PathPlanningServer', anonymous=True)
-    # Need a reference to the holster so that the map is ready
-	global holster, flag, pub,currentPosition,costMap
-	holster = MapHolster('/map_yellow') 
-	pub = YellowPublisher('/map_yellow')
-	costMap = MapHolster('/move_base/local_costmap/costmap_yellow')
-	
-	
-	
+	global globalMapHolster, costMapHolster
+	globalMapHolster = MapHolster('/map_yellow') 
+	costMapHolster = MapHolster('/move_base/local_costmap/costmap_yellow')
+		
 	# Setup up server
 	rospy.Service('calculate_path', CalculatePath, handleCalculatePath);
 		
-	currentPosition = Point(0,0,0)
-	flag = 0
-
-	print holster.getCurrentOrientation()
 	print "Ready to calculate paths!"
-	
 	rospy.spin()

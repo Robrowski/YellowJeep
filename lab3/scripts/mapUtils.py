@@ -1,9 +1,4 @@
 #!/usr/bin/env python
-
-
-##############################################################################
-# Ros Imports
-##############################################################################
 import rospy, math
 from geometry_msgs.msg import Point
 
@@ -13,7 +8,6 @@ def unitVector(origin, there):
 	x = (there.x - origin.x)/magnitude
 	y = (there.y - origin.y)/magnitude
 	return Point(x,y,0)
-
 
 # Takes the distance between two Points
 def distance(aPoint, bPoint):
