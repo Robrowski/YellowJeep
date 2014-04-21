@@ -58,7 +58,8 @@ def calcHeuristic(current, goal,globalMapHolster,costMapHolster):
 		costOfCurrent = 0 # Set to zero to not make h(n) lower
 	
 	# newHeuristic is an optimized distance function to account for constraints
-	return PID*newHeuristic(current,goal) + PIDprime*costOfCurrent
+	return PID*newHeuristic(current,goal)  #+ PIDprime*costOfCurrent
+# 	return distance(current,goal)
 
 
 # given the list of parents and the start and goal points,
@@ -88,7 +89,7 @@ def astar(start, goal, holster, costMap):
 	g_score = {start:0} #dictionary for best cost to any node from start
 
 	#dictionary of best final scores ( = with heuristic) for each node from start
-	f_score = {start:g_score[start] + calcHeuristic(start, goal,holster,costMap)} 
+	f_score = {start:(g_score[start] + calcHeuristic(start, goal,holster,costMap))} 
 
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
 
@@ -122,28 +123,41 @@ def astar(start, goal, holster, costMap):
 		##########################################################
 		neighbors = holster.getEightAdjacentPoints(current.x, current.y, 65)
 		for neighbor in neighbors:
-			better = False
-			temp_g = g_score[current] + weightBetween(current,neighbor)
-			temp_f =  temp_g + calcHeuristic(neighbor,goal,holster,costMap) 
-
 			if (neighbor in explored): 
 				continue
+			
+			better = False
+			temp_g = g_score[current] + weightBetween(current,neighbor)
+			temp_f = temp_g + calcHeuristic(neighbor,goal,holster,costMap) 
 
+##########################################################
+			## Add to lists if not added
 			if neighbor not in frontier:
 				frontier.append(neighbor)
-				better = True
-			elif neighbor in g_score:
-				if temp_g < g_score[neighbor]:
-					better = True
-			else:
-				better = False
-
-			if better:
+			
+			if neighbor not in parents:
 				parents[neighbor] = current
+			
+			if neighbor not in g_score:
 				g_score[neighbor] = temp_g
+			
+			if neighbor not in f_score:
 				f_score[neighbor] = temp_f
 
-	
+##########################################################
+			## updates
+			# update parents
+			if (temp_g < g_score[neighbor]):
+				print "poop"
+				parents[neighbor] = current
+				
+				
+			g_score[neighbor] = min(temp_g, g_score[neighbor])
+			f_score[neighbor] = min(temp_f, f_score[neighbor])
+			print g_score[neighbor] 
+			print f_score[neighbor] 
+
+
 	print "Nodes Expanded by A*: " + str( len(explored))
 	pub.sendToFrontier(frontier)
 	path = reconstructPath(parents,start,goal)
