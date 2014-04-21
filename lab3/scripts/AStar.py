@@ -58,7 +58,7 @@ def calcHeuristic(current, goal,globalMapHolster,costMapHolster):
 		costOfCurrent = 0 # Set to zero to not make h(n) lower
 	
 	# newHeuristic is an optimized distance function to account for constraints
-	return PID*newHeuristic(current,goal)  #+ PIDprime*costOfCurrent
+	return PID*newHeuristic(current,goal)  + PIDprime*costOfCurrent
 # 	return distance(current,goal)
 
 

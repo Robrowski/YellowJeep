@@ -27,8 +27,7 @@ def gotGoal(msg):
 		
 		waypoints = extractWaypoints(path)
 		pub.sendToWaypoints( waypoints)	
-	except AStarException:
-		print "The goal changed so A* shut down :D"
+	
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
 		
