@@ -4,9 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /RealMap1/Status1
+        - /TF1
         - /TF1/Frames1
-      Splitter Ratio: 0.563474
+      Splitter Ratio: 0.564433
     Tree Height: 716
   - Class: rviz/Selection
     Name: Selection
@@ -43,10 +43,10 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: true
+      Enabled: false
       Name: LocalCostMap
       Topic: /move_base/local_costmap/costmap
-      Value: true
+      Value: false
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
@@ -74,10 +74,10 @@ Visualization Manager:
     - Alpha: 0.6
       Class: rviz/GridCells
       Color: 255; 255; 3
-      Enabled: true
+      Enabled: false
       Name: Frontier
       Topic: /frontier
-      Value: true
+      Value: false
     - Alpha: 0.4
       Class: rviz/GridCells
       Color: 255; 172; 255
@@ -498,16 +498,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.66256
+      Distance: 3.30584
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.64098
-        Y: -1.25812
-        Z: -1.20067
+        X: -1.22264
+        Y: -2.34153
+        Z: 0.408357
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 0.554797
@@ -566,4 +566,4 @@ Window Geometry:
     collapsed: false
   Width: 1613
   X: 58
-  Y: 25
+  Y: 24

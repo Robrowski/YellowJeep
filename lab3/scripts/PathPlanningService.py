@@ -6,7 +6,7 @@ from geometry_msgs.msg import Point
 from nav_msgs.msg import *
 from YellowPublisher import *
 from MapHolster      import *
-from AStar 			 import astar
+from AStar 			 import astar, AStarException
 
 # Calculates a path when told to
 def handleCalculatePath(h):
@@ -28,6 +28,8 @@ def handleCalculatePath(h):
 		print "Using robot position as start of A*"
 		start = globalMapHolster.convertCellToPoint(globalMapHolster.getCurrentPosition())
 		
+	
+	
 	path = astar(start,goal, globalMapHolster,costMapHolster)
 	return CalculatePathResponse(path)
 

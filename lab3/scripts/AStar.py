@@ -10,6 +10,17 @@ from YellowPublisher import *
 from MapHolster import *
 from mapUtils import *
 
+
+#A* Exception - for when A* needs to stop
+class AStarException(Exception):
+	def __init__(self, value = "A*'s goal changed..."):
+		self.value = value
+	
+	def __str__(self):
+		return repr(self.value)
+
+
+
 ######################################################
 # A-Star Helper Functions
 ######################################################
@@ -82,6 +93,13 @@ def astar(start, goal, holster, costMap):
 	parents = {} #dictionary representing node to parent relationship. ex: {node: parent}
 
 	while frontier:
+		
+		# Raise an exception if the goal changes mid calculation
+		if goal != holster.goal:
+			raise AStarException
+		
+		
+		
 		#get the lowest node from the frontier to explore next
 		current = getLowestF(frontier,f_score)
 

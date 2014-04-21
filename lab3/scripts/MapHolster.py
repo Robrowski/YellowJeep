@@ -14,6 +14,7 @@ class MapHolster:
     
 	# Reads map meta data and saves to object constants
 	def __init__(self, mapTopicName = '/map_yellow'):
+		self.mapName = mapTopicName
 		# Default stuff
 		self.goal = Point(1,1,0)  # default
 		self.start = Point(1,1,0) # default		
@@ -142,6 +143,8 @@ class MapHolster:
 		self.gridResolution = aMap.info.resolution # assume square map
 		self.gridOrigin = Point( self.mapOrigin.x + self.gridResolution/2  , self.mapOrigin.y + self.gridResolution/2  ,  0)
 		self.hasMap = True
+		#print "Holster got:" + self.mapName 
+		
 	def goalRecieved(self, aStampedPose):
 		if self.hasMap:
 			self.goal = self.convertCellToPoint(aStampedPose.pose.position)

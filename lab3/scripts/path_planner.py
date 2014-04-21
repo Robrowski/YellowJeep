@@ -7,7 +7,7 @@ from MapHolster import *
 from lab3.srv import *
 from mapUtils import *
 from nav_msgs.msg import OccupancyGrid, Odometry
-
+from AStar 			 import  AStarException
 
 ######################################################
 # Sends service request to get A* going
@@ -27,6 +27,8 @@ def gotGoal(msg):
 		
 		waypoints = extractWaypoints(path)
 		pub.sendToWaypoints( waypoints)	
+	except AStarException:
+		print "The goal changed so A* shut down :D"
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
 		
