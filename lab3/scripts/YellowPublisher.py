@@ -11,8 +11,13 @@ class YellowPublisher:
 		self.expandedPub = rospy.Publisher('/expanded', GridCells, latch=True)   
 		self.pathPub = rospy.Publisher('/path', GridCells, latch=True)
 		self.wpPub = rospy.Publisher('/wayPoints', GridCells, latch=True)
+		self.goalsPub = rospy.Publisher('/goals', GridCells, latch=True)
 		self.holster = MapHolster(mapTopicName) # Needed to convert points to cells
 		rospy.sleep(rospy.Duration(1.1, 0)) # need to be damn sure teh holster has a map
+
+	# Send points to the frontier topic
+	def sendToGoals(self,  points):
+		self.goalsPub.publish(self.holster.makeMessage(points))
 
 	# Send points to the frontier topic
 	def sendToFrontier(self,  points):

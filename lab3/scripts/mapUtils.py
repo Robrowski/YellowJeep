@@ -2,6 +2,11 @@
 import rospy, math
 from geometry_msgs.msg import Point
 
+# Print apoin 
+def printPoint(pt):
+	print "X: " + str(pt.x) +"  Y: " + str(pt.y) # + "  Z: " + str(pt.z)
+
+
 # Calculates the unit vector connecting two points
 def unitVector(origin, there):
 	magnitude = distance(origin, there)
