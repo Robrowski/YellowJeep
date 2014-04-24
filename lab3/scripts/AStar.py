@@ -99,8 +99,6 @@ def astar(start, goal, holster, costMap):
 		if goal != holster.goal:
 			raise AStarException
 		
-		
-		
 		#get the lowest node from the frontier to explore next
 		current = getLowestF(frontier,f_score)
 
@@ -148,17 +146,17 @@ def astar(start, goal, holster, costMap):
 			## updates
 			# update parents
 			if (temp_g < g_score[neighbor]):
-				print "poop"
+				print "poop A*"
 				parents[neighbor] = current
 				
 				
 			g_score[neighbor] = min(temp_g, g_score[neighbor])
 			f_score[neighbor] = min(temp_f, f_score[neighbor])
-			print g_score[neighbor] 
-			print f_score[neighbor] 
+		#	print g_score[neighbor] 
+		#	print f_score[neighbor] 
 
 
-	print "Nodes Expanded by A*: " + str( len(explored))
+#	print "Nodes Expanded by A*: " + str( len(explored))
 	pub.sendToFrontier(frontier)
 	path = reconstructPath(parents,start,goal)
 	return path

@@ -11,6 +11,7 @@ def gotWaypoints(waypointMsg):
 	global waypoints
 	waypoints = waypointMsg.cells
 	waypoints.reverse()
+	print "Got Waypoints in driver"
 
 # Makes a twist message vien angular and forward velocities
 def createTwist(u,w):
@@ -69,6 +70,7 @@ def followPath():
 	while  not rospy.is_shutdown():
 		try: 
 			next = waypoints[1] #could get set at any time by callbacks
+			print "About to rotate..."
 			globalRotate(calcDesiredTheta(next)) #rotate until at desired theta
 				
 			# Send robot forward if not at the next waypoint
