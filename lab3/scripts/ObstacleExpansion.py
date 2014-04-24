@@ -34,7 +34,8 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 						return -1 # unknown!
 				else:
 					avg += cVal		
-	return avg/(numCellsToCompress - numUnknowns)
+	return avg/(numCellsToCompress - .
+			)
 
 # Looks at a point and its neighbours and decides whether it should increase the value or not
 def expandCell(x,y):
