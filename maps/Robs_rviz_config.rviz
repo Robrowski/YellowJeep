@@ -4,9 +4,8 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /Frontier1
-        - /Expanded1
         - /Goals1
+        - /Frontier1
         - /TF1/Frames1
       Splitter Ratio: 0.645833
     Tree Height: 717
@@ -75,6 +74,13 @@ Visualization Manager:
       Value: false
     - Alpha: 1
       Class: rviz/GridCells
+      Color: 14; 151; 255
+      Enabled: true
+      Name: Goals
+      Topic: /goals
+      Value: true
+    - Alpha: 1
+      Class: rviz/GridCells
       Color: 255; 255; 3
       Enabled: true
       Name: Frontier
@@ -87,13 +93,6 @@ Visualization Manager:
       Name: Path
       Topic: /path
       Value: false
-    - Alpha: 0.2
-      Class: rviz/GridCells
-      Color: 59; 255; 0
-      Enabled: true
-      Name: Expanded
-      Topic: /expanded
-      Value: true
     - Alpha: 1
       Class: rviz/GridCells
       Color: 255; 0; 127
@@ -101,12 +100,12 @@ Visualization Manager:
       Name: WayPoints
       Topic: /wayPoints
       Value: false
-    - Alpha: 1
+    - Alpha: 0.05
       Class: rviz/GridCells
-      Color: 14; 151; 255
+      Color: 59; 255; 0
       Enabled: true
-      Name: Goals
-      Topic: /goals
+      Name: Expanded
+      Topic: /expanded
       Value: true
     - Alpha: 1
       Class: rviz/RobotModel
@@ -209,16 +208,16 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 21.4598
+      Distance: 20.6215
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.06
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.547923
-        Y: -1.31723
-        Z: 0.0898144
+        X: 0.48904
+        Y: 0.290145
+        Z: 0.301535
       Name: Current View
       Near Clip Distance: 0.01
       Pitch: 1.4398
