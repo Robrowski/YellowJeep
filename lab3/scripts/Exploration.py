@@ -139,12 +139,12 @@ def findUnknowns(aPoseWithCovarianceStamped):
 	for i in range(len(goals)):
 		goalPriorityQ.put([ 1/centroidValue(newFrontiers[i], goals[i]) ,goals[i] ])
 		
-	print "Sorted Goals:  "
+	#print "Sorted Goals:  "
 	sortedGoals = []
 	while goalPriorityQ.qsize() > 0:
 		point = goalPriorityQ.get()[1]
 		sortedGoals.append(point)
-		printPoint(point)
+		#printPoint(point)
 
 	yellowPub.sendToGoals( sortedGoals)
 
@@ -154,7 +154,7 @@ def sendGoal(notUsed):
 	global sortedGoals, pub, holster
 	
 	if len(sortedGoals) > 0:
-		ptToSend = holster.convertPointsToCells(sortedGoals[0])
+		ptToSend = holster.convertPointsToCells([sortedGoals[0]])[0]
 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
 		print "Goal Sent"
 
@@ -173,7 +173,7 @@ if __name__ == '__main__':
 	#rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
 	
 	pub = rospy.Publisher('/move_base_simple/yellowgoal',  PoseStamped,latch=True)
-	rospy.Timer(rospy.Duration(2), sendGoal)
+	rospy.Timer(rospy.Duration(20), sendGoal)
 	
 	print "Ready to explore the map!"
 
