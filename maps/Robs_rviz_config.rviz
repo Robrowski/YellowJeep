@@ -45,10 +45,10 @@ Visualization Manager:
       Class: rviz/Map
       Color Scheme: map
       Draw Behind: false
-      Enabled: false
+      Enabled: true
       Name: LocalCostMap
       Topic: /move_base/local_costmap/costmap
-      Value: false
+      Value: true
     - Alpha: 0.7
       Class: rviz/Map
       Color Scheme: map
@@ -437,5 +437,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1078
-  X: 588
+  X: 581
   Y: 24

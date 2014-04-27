@@ -6,6 +6,9 @@
 	
 	<node pkg="lab3" type="path_planner.py" name="path_planner" required="true" output="screen"/>
 	<node pkg="lab3" type="PathPlanningService.py" name="path_service" required="true" output="screen"/>
-	<node pkg="lab3" type="robotDriveHandler.py" name="drive" required="true" output="screen"  />
+	<node pkg="lab3" type="robotDriveHandler.py" name="drive"  output="screen"  respawn="true"/>
+	
+	<node pkg="lab3" type="Exploration.py" name="explore_test" required="true" output="screen"/>
+	
 
 </launch>

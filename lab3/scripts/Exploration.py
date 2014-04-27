@@ -40,9 +40,9 @@ def calculateCentroid(cluster):
 
 def centroidValue(cluster, centroid):
 	global robotPosition
-	alpha = 0
+	alpha = 5
 	beta  = 1
-	return  alpha * distance(robotPosition, centroid)  + beta* len(cluster)
+	return  alpha / distance(robotPosition, centroid)  + beta* len(cluster)
 
 
 # Checks 8 points adjacent to center for unknowns. 
@@ -117,11 +117,11 @@ def findUnknowns(aPoseWithCovarianceStamped):
 				frontClosed.append(pt)		
 			if len(cluster) > clusterSize:
 				newFrontiers.append(cluster)
-				yellowPub.sendToFrontier(cluster)
+			#	yellowPub.sendToFrontier(cluster)  # Animation
 				goals.append(calculateCentroid(cluster))
 				yellowPub.sendToGoals( goals)
-	#	yellowPub.sendToFrontier(frontier)
-		yellowPub.sendToExpanded(mapClosed)
+	#	yellowPub.sendToFrontier(frontier)  # Animation
+	#	yellowPub.sendToExpanded(mapClosed) # Animation
 	
 		# Adding points to queue
 		adjacentPoints = holster.getEightAdjacentPoints(current, None, tol = obstacleTol)
@@ -137,7 +137,7 @@ def findUnknowns(aPoseWithCovarianceStamped):
 	
 	
 	for i in range(len(goals)):
-		goalPriorityQ.put([ 1/centroidValue(newFrontiers[i], goals[i]) ,goals[i] ])
+		goalPriorityQ.put([ 1/centroidValue(newFrontiers[i], goals[i]) , goals[i] ])
 		
 	#print "Sorted Goals:  "
 	sortedGoals = []
