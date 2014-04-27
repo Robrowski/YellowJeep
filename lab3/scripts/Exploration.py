@@ -40,9 +40,9 @@ def calculateCentroid(cluster):
 
 def centroidValue(cluster, centroid):
 	global robotPosition
-	alpha = 5
-	beta  = 1
-	return  alpha / distance(robotPosition, centroid)  + beta* len(cluster)
+	alpha = 1
+	beta  = 2
+	return  alpha * distance(robotPosition, centroid)  + beta* len(cluster)
 
 
 # Checks 8 points adjacent to center for unknowns. 

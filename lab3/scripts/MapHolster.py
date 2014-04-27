@@ -8,6 +8,7 @@ from geometry_msgs.msg import Point
 from geometry_msgs.msg import PoseWithCovarianceStamped
 from geometry_msgs.msg import PoseStamped
 from tf.transformations import euler_from_quaternion
+from JPS import *
 
 # MapHolster Holds a map and encapsulates grid cell abstraction and more!
 class MapHolster:
@@ -26,10 +27,12 @@ class MapHolster:
 		
 		# For keeping Updates on robot position
 		self.tfListener = tf.TransformListener()
+		# self.JEEP = JPS()
 		self.hasMap = False
 	
 	# Reads the tf stack and returns the location of the robot on the map
-	def getCurrentPosition(self):		
+	def getCurrentPosition(self):
+		# self.JEEP.getCurrentPosition()		
 		try:
 			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
 			return  Point(trans[0], trans[1], 0)			
@@ -45,6 +48,7 @@ class MapHolster:
 		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 			print "TF FAIL"
 			return None	
+		# self.JEEP.getCurrentOrientation()
 			
     #####################################################
     ##########   Grid Cell Utilities   ##################

@@ -97,7 +97,8 @@ def astar(start, goal, holster, costMap):
 		
 		# Raise an exception if the goal changes mid calculation
 		if goal != holster.goal:
-			raise AStarException
+			# raise AStarException
+			return None
 		
 		#get the lowest node from the frontier to explore next
 		current = getLowestF(frontier,f_score)
@@ -158,5 +159,7 @@ def astar(start, goal, holster, costMap):
 
 #	print "Nodes Expanded by A*: " + str( len(explored))
 	pub.sendToFrontier(frontier)
+	if goal not in parents:
+		return None
 	path = reconstructPath(parents,start,goal)
 	return path

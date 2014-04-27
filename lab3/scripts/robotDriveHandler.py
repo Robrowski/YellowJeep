@@ -84,8 +84,8 @@ def followPath():
 			r.sleep()
 		except  IndexError:	
 			# Send a rotate 
-			sendTwist(0,0.2)
-			print "rotating blindly"
+			sendTwist(0,0.3)
+			#print "rotating blindly"
 			
 			
 			r.sleep()				

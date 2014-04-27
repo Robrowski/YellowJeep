@@ -23,10 +23,12 @@ def gotGoal(msg):
 		resp = calculate_path(None, None) # None = use RViz topics as set points
 		
 		path = resp.path	
-		pub.sendToPath( path)
-		
-		waypoints = extractWaypoints(path)
-		pub.sendToWaypoints( waypoints)	
+		if len(path)  > 1:
+			pub.sendToPath( path)
+			
+			waypoints = extractWaypoints(path)
+			if len(waypoints) > 1: # want to send SOMETHING
+				pub.sendToWaypoints( waypoints)	
 	
 	except rospy.ServiceException, e:
 		print "Service call failed: %s"%e
