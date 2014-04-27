@@ -40,9 +40,9 @@ def calculateCentroid(cluster):
 
 def centroidValue(cluster, centroid):
 	global robotPosition
-	alpha = 1
-	beta  = 2
-	return  alpha * distance(robotPosition, centroid)  + beta* len(cluster)
+	alpha = .8
+	beta  = 8
+	return  (alpha / distance(robotPosition, centroid) ) + beta* len(cluster)
 
 
 # Checks 8 points adjacent to center for unknowns. 
@@ -69,7 +69,7 @@ def findUnknowns(aPoseWithCovarianceStamped):
 	
 ############################################
 ###### Tuning Variables
-	clusterSize = 5
+	clusterSize = 6
 	obstacleTol = 10
 	
 ############################################
@@ -147,7 +147,7 @@ def findUnknowns(aPoseWithCovarianceStamped):
 		#printPoint(point)
 
 	yellowPub.sendToGoals( sortedGoals)
-
+	return sortedGoals
 
 
 def sendGoal(notUsed):
@@ -157,6 +157,51 @@ def sendGoal(notUsed):
 		ptToSend = holster.convertPointsToCells([sortedGoals[0]])[0]
 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
 		print "Goal Sent"
+
+
+# def sendGoalBetter(goal):
+# 	global sortedGoals, pub, holster
+	
+# 	if len(sortedGoals) > 0:
+# 		ptToSend = goal
+# 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
+# 		# print "Goal Sent"
+
+# def THEPLAN():
+# 	global pub,holster, yellowPub, obstacleTol, sortedGoals
+
+
+# 	sortedGoals = findUnknowns("poop")
+# 	yellowPub.sendToGoals( sortedGoals)
+# 	prevGoal = None #sortedGoals[]
+# 	currentGoal = sortedGoals[0]
+# 	print currentGoal
+# 	atGoal = False
+# 	while True:
+
+# 		if currentGoal == prevGoal:
+# 			print "move to next goal"
+# 			currentGoal = sortedGoals[1]
+# 		sendGoalBetter(currentGoal)
+# 		while not atGoal:
+# 			robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
+# 			# print currentGoal
+# 			goalPt = holster.convertPointsToCells([currentGoal])[0]
+# 			# print "Goal:" 
+# 			# print goalPt
+# 			# print "position:"
+# 			# print robotPosition
+# 			if robotPosition == goalPt:
+# 				print "at goal"
+# 				findUnknowns("o")
+# 				prevGoal = goalPt
+# 				atGoal = True
+# 				yellowPub.sendToGoals( sortedGoals)
+# 			# else:
+# 				# sendGoalBetter(currentGoal)
+
+# 		yellowPub.sendToGoals( sortedGoals)
+
 
 
 #Main function that sets up a subscriber that waits for RViz to publish goals
@@ -169,13 +214,16 @@ if __name__ == '__main__':
 	
 	
 	# Call findUnknowns on a 45 second timer
-	rospy.Timer(rospy.Duration(15), findUnknowns)
-	#rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
+	rospy.Timer(rospy.Duration(35), findUnknowns)
+
+	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
 	
 	pub = rospy.Publisher('/move_base_simple/yellowgoal',  PoseStamped,latch=True)
-	rospy.Timer(rospy.Duration(20), sendGoal)
+	rospy.Timer(rospy.Duration(35), sendGoal)
 	
 	print "Ready to explore the map!"
+
+	# THEPLAN()
 
 	rospy.spin()
 	

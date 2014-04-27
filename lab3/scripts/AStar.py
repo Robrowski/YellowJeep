@@ -42,8 +42,14 @@ def frontierPriorityPush():
 
 # returns the weight/cost to go from point a to point b
 # for simplicity, all weights are equal for the time being 
-def weightBetween(a,b):
-	return distance(a,b)
+def weightBetween(current,goal, globalMapHolster, costMapHolster):
+
+	currentInWorldCoords = costMapHolster.convertCellToPoint(  globalMapHolster.newGridCell(current))
+	costOfCurrent = costMapHolster.readMapPoint(currentInWorldCoords)
+	if costOfCurrent == -1:
+		costOfCurrent = 0 # Set to zero to not make h(n) lower
+
+	return distance(current,goal) + .9 * costOfCurrent
 
 
 # Calculates the h(n) between two points
@@ -126,7 +132,7 @@ def astar(start, goal, holster, costMap):
 				continue
 			
 			better = False
-			temp_g = g_score[current] + weightBetween(current,neighbor)
+			temp_g = g_score[current] + weightBetween(current,neighbor,holster,costMap)
 			temp_f = temp_g + calcHeuristic(neighbor,goal,holster,costMap) 
 
 ##########################################################

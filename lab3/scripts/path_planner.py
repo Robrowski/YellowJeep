@@ -50,7 +50,7 @@ if __name__ == '__main__':
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, clearGridCells, queue_size=None)
 
 	# Call A* on a timer
-	rospy.Timer(rospy.Duration(9), gotGoal)
+	rospy.Timer(rospy.Duration(20), gotGoal)
 	
 	print "Ready for RVIZ to set start and goal"
 	rospy.spin()
