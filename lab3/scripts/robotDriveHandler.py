@@ -89,7 +89,12 @@ def followPath():
 			
 			
 			r.sleep()				
-		
+
+def atGoal():
+	if len(wayPoints) != 0:
+		return True
+	return False
+
 if __name__ == '__main__':
 	rospy.init_node('pathFollow', anonymous=True)
 	

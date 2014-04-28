@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import rospy, math, Queue as q
+import rospy, math, random, Queue as q
 from geometry_msgs.msg import Point, PoseStamped, Pose
 from std_msgs.msg import Header
 from YellowPublisher import *
@@ -9,6 +9,7 @@ from lab3.srv import *
 from mapUtils import *
 from nav_msgs.msg import OccupancyGrid, Odometry
 from AStar 			 import  AStarException
+
 
 
 
@@ -42,7 +43,7 @@ def centroidValue(cluster, centroid):
 	global robotPosition
 	alpha = .8
 	beta  = 8
-	return  (alpha / distance(robotPosition, centroid) ) + beta* len(cluster)
+	return  (alpha * distance(robotPosition, centroid) ) + beta* len(cluster)
 
 
 # Checks 8 points adjacent to center for unknowns. 
@@ -151,13 +152,52 @@ def findUnknowns(aPoseWithCovarianceStamped):
 
 
 def sendGoal(notUsed):
-	global sortedGoals, pub, holster
+	global sortedGoals, pub, holster, nextGoal
 	
 	if len(sortedGoals) > 0:
-		ptToSend = holster.convertPointsToCells([sortedGoals[0]])[0]
+		# ptToSend = holster.convertPointsToCells([sortedGoals[0]])[0]
+		ptToSend = holster.convertPointsToCells([nextGoal])[0]
 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
-		print "Goal Sent"
+		print "\t\tGoal Sent!!!!!!!!!!!!!"
 
+
+def newRandomGoal(notUsed):
+	global sortedGoals, nextGoal, prevGoal, goalIndex
+
+	# if atGoal(nextGoal):
+	# 	if len(sortedGoals) != goalIndex + 1:
+	# 		nextGoal = sortedGoals[goalIndex + 1]
+	# 		goalIndex += 1
+	# 	else:
+	# 		nextGoal = random.choice(sortedGoals)
+	# 		while nextGoal != prevGoal:
+	# 			nextGoal = random.choice(sortedGoals)
+	# 		prevGoal = nextGoal
+	if atGoal(nextGoal):
+		nextGoal = random.choice(sortedGoals)
+		print atGoal(nextGoal)
+		while nextGoal != prevGoal:
+			nextGoal = random.choice(sortedGoals)
+		prevGoal = nextGoal
+		
+	print "Next Goal is: " + str(nextGoal.x) + str(nextGoal.y)
+
+
+#I think this needs be looked at when i'm not drunk....
+def atGoal(currentGoal):
+	global holster
+	robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
+	print robotPosition
+	# goalPt = holster.convertPointsToCells([currentGoal])[0]
+	print "Goal:" 
+	# print goalPt
+	print currentGoal
+	# print "position:"
+	# print robotPosition
+	if robotPosition == currentGoal:
+		return True
+	else:
+		return False
 
 # def sendGoalBetter(goal):
 # 	global sortedGoals, pub, holster
@@ -196,7 +236,7 @@ def sendGoal(notUsed):
 # 				findUnknowns("o")
 # 				prevGoal = goalPt
 # 				atGoal = True
-# 				yellowPub.sendToGoals( sortedGoals)
+# 				yellowPub.sendToGonewRandomGoalals( sortedGoals)
 # 			# else:
 # 				# sendGoalBetter(currentGoal)
 
@@ -207,19 +247,29 @@ def sendGoal(notUsed):
 #Main function that sets up a subscriber that waits for RViz to publish goals
 if __name__ == '__main__':
 	rospy.init_node('Path_Planner', anonymous=True)
-	global pub,holster, yellowPub, sortedGoals
+	global pub,holster, yellowPub, sortedGoals, nextGoal, prevGoal, goalIndex
 	sortedGoals = []
 	holster = MapHolster() # the map to explore
 	yellowPub = YellowPublisher('/map_yellow')
+
+	goalIndex = -1
 	
+	findUnknowns("notused")
+	nextGoal = sortedGoals[0]
+	prevGoal = sortedGoals[0]
+	atGoal(nextGoal)
+	# newRandomGoal("notused")
 	
+	# sendGoal("notused")
 	# Call findUnknowns on a 45 second timer
-	rospy.Timer(rospy.Duration(35), findUnknowns)
+	rospy.Timer(rospy.Duration(45), findUnknowns)
+	# rospy.Subscriber('/map', OccupancyGrid, gotGoal, queue_size=None)
+	rospy.Timer(rospy.Duration(15), newRandomGoal)
 
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
 	
 	pub = rospy.Publisher('/move_base_simple/yellowgoal',  PoseStamped,latch=True)
-	rospy.Timer(rospy.Duration(35), sendGoal)
+	rospy.Timer(rospy.Duration(30), sendGoal)
 	
 	print "Ready to explore the map!"
 
