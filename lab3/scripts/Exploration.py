@@ -173,12 +173,15 @@ def newRandomGoal(notUsed):
 	# 		while nextGoal != prevGoal:
 	# 			nextGoal = random.choice(sortedGoals)
 	# 		prevGoal = nextGoal
-	if atGoal(nextGoal):
-		nextGoal = random.choice(sortedGoals)
-		print atGoal(nextGoal)
-		while nextGoal != prevGoal:
-			nextGoal = random.choice(sortedGoals)
-		prevGoal = nextGoal
+	# if atGoal(nextGoal):
+	print "Generating random goal"
+	print "prevGoal: " + str(prevGoal.x) + str(prevGoal.y)
+	nextGoal = random.choice(sortedGoals)
+		# print atGoal(nextGoal)
+
+	# while nextGoal != prevGoal:
+	# 	nextGoal = random.choice(sortedGoals)
+	# prevGoal = nextGoal
 		
 	print "Next Goal is: " + str(nextGoal.x) + str(nextGoal.y)
 
@@ -257,14 +260,15 @@ if __name__ == '__main__':
 	findUnknowns("notused")
 	nextGoal = sortedGoals[0]
 	prevGoal = sortedGoals[0]
-	atGoal(nextGoal)
+	# atGoal(nextGoal)
+	newRandomGoal("Notused")
 	# newRandomGoal("notused")
 	
 	# sendGoal("notused")
 	# Call findUnknowns on a 45 second timer
 	rospy.Timer(rospy.Duration(45), findUnknowns)
 	# rospy.Subscriber('/map', OccupancyGrid, gotGoal, queue_size=None)
-	rospy.Timer(rospy.Duration(15), newRandomGoal)
+	rospy.Timer(rospy.Duration(120), newRandomGoal)
 
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
 	
