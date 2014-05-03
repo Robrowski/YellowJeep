@@ -9,6 +9,7 @@ from lab3.srv import *
 from mapUtils import *
 from nav_msgs.msg import OccupancyGrid, Odometry
 from AStar 			 import  AStarException
+from kobuki_msgs.msg import BumperEvent
 
 
 
@@ -176,7 +177,9 @@ def newRandomGoal(notUsed):
 	# if atGoal(nextGoal):
 	print "Generating random goal"
 	print "prevGoal: " + str(prevGoal.x) + str(prevGoal.y)
-	nextGoal = random.choice(sortedGoals)
+	prevGoal = nextGoal
+	while nextGoal == prevGoal and len(sortedGoals) > 1:
+		nextGoal = random.choice(sortedGoals)
 		# print atGoal(nextGoal)
 
 	# while nextGoal != prevGoal:
@@ -245,7 +248,11 @@ def atGoal(currentGoal):
 
 # 		yellowPub.sendToGoals( sortedGoals)
 
-
+def readBumper(msg):
+	if (msg.state == 1):
+		print "hump"
+		newRandomGoal("notused")
+		sendGoal("notused")
 
 #Main function that sets up a subscriber that waits for RViz to publish goals
 if __name__ == '__main__':
@@ -271,7 +278,8 @@ if __name__ == '__main__':
 	rospy.Timer(rospy.Duration(120), newRandomGoal)
 
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
-	
+	bumper_sub = rospy.Subscriber('mobile_base/events/bumper', BumperEvent, readBumper, queue_size=1) # Callback function to handle bumper events
+
 	pub = rospy.Publisher('/move_base_simple/yellowgoal',  PoseStamped,latch=True)
 	rospy.Timer(rospy.Duration(30), sendGoal)
 	

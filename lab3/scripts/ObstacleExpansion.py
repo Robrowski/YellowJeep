@@ -19,6 +19,7 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 	numCellsToCompress = cellsPerSide*cellsPerSide # we compress squares
 	numUnknowns = 0
 	avg = 0
+	numWalls = 0
 	
 	# Find number of unknowns + average cost
 	c = math.trunc(0.5*cellsPerSide)
@@ -28,13 +29,25 @@ def cellShrinker(x, y,  cellsPerSide, maxUnknownPercent ):
 			if mx >= 0 and my >= 0:			
 				cVal = holster.readMapPoint(mx,my)
 				
+				if cVal > 50:
+					numWalls += 1
+
 				if cVal == -1:
 					numUnknowns += 1
 					if numUnknowns >= numCellsToCompress*maxUnknownPercent:
 						return -1 # unknown!
 				else:
 					avg += cVal		
-	return avg/(numCellsToCompress - numUnknowns)
+	newVal = avg/(numCellsToCompress - numUnknowns)
+
+	newVal += 2*numWalls
+
+	# Make sure its between 0 and 100
+	if newVal > 100:
+		newVal = 100
+
+
+	return newVal
 
 # Looks at a point and its neighbours and decides whether it should increase the value or not
 def expandCell(x,y):

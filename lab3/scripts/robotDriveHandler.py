@@ -59,7 +59,7 @@ def globalRotate(desiredTheta):
 def followPath():
 	global waypoints,  holster, cmdPub, robotPose, turningTolerance, rotationSpeed
 	# TUNING FUNCTIONS
-	fast = 0.13
+	fast = 0.22
 	rotationSpeed = 0.7
 	turningTolerance = math.pi/10    # radians
 	distanceToGoalTolerance = 0.08   #  cm
