@@ -11,6 +11,9 @@ from tf.transformations import euler_from_quaternion
 from JPS import *
 
 # MapHolster Holds a map and encapsulates grid cell abstraction and more!
+# A MapHolster can be initialized to listen to any topic that publishes a
+# GridCells message. Reading from that map will be abstracted and so will
+# as conversions between abstracted map points and global coordinates.
 class MapHolster:
     
 	# Reads map meta data and saves to object constants
@@ -26,53 +29,18 @@ class MapHolster:
 		rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
 		
 		# For keeping Updates on robot position
-		self.tfListener = tf.TransformListener()
-		# self.JEEP = JPS()
+		self.Jeep = JPS()
+		
+		# Flag to prevent calculations on non-existent maps
 		self.hasMap = False
 	
-	# Reads the tf stack and returns the location of the robot on the map
+	# Reads the tf stack and returns the global coordinates of the robot 
 	def getCurrentPosition(self):
-		# self.JEEP.getCurrentPosition()		
-		try:
-			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
-			return  Point(trans[0], trans[1], 0)
-		except tf.LookupException, e:
-			print "Position: LookupException"
-			print e
-			return None
-		except tf.ExtrapolationException, e:
-			print "Position: ExtrapolationException"
-			print e
-			return None
-		except 	tf.ConnectivityException, e:
-			print "Position: ConnectivityException"
-			print e
-			return None			
-		# except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-		# 	print "TF FAIL"
-		# 	return None
+		return self.Jeep.getCurrentPosition()
 	
-	# Reads the tf stack and returns the orientation of the robot on the map	
+	# Reads the tf stack and returns the global orientation of the robot 	
 	def getCurrentOrientation(self):	
-		try:
-			(trans,rot) = self.tfListener.lookupTransform('/map', '/base_footprint', rospy.Time(0))
-			return  euler_from_quaternion( [rot[0],rot[1],rot[2],rot[3]])[2]
-		except tf.LookupException, e:
-			print "Position: LookupException"
-			print e
-			return None
-		except tf.ExtrapolationException, e:
-			print "Position: ExtrapolationException"
-			print e
-			return None
-		except 	tf.ConnectivityException, e:
-			print "Position: ConnectivityException"
-			print e
-			return None
-		# except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-		# 	print "TF FAIL"
-		# 	return None	
-		# self.JEEP.getCurrentOrientation()
+		return self.JEEP.getCurrentOrientation()
 			
     #####################################################
     ##########   Grid Cell Utilities   ##################

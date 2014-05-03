@@ -2,9 +2,9 @@
 import rospy, math
 from geometry_msgs.msg import Point
 
-# Print apoin 
+# Print a point
 def printPoint(pt):
-	print "X: " + str(pt.x) +"  Y: " + str(pt.y) # + "  Z: " + str(pt.z)
+	print "X: " + str(pt.x) +"  Y: " + str(pt.y) 
 
 
 # Calculates the unit vector connecting two points
@@ -20,36 +20,36 @@ def distance(aPoint, bPoint):
 	sq2 = math.pow(aPoint.y - bPoint.y, 2)
 	return math.sqrt(sq1 + sq2)
 
-# A heuristic that calculates the distance assuming that the 
+# A heuristic function that calculates the distance assuming that the 
 # robot can only move straight and at 45 degree angles to 
-# get to its goal
+# get to its goal when moving on an 8-connected grid.
+#
+# This heuristic dominates straight line distance heuristics and
+# is still admissible when used on its own.
 def newHeuristic(start, goal):
 	# vector from start to goal
 	v = Point( math.fabs(goal.x - start.x), math.fabs(goal.y - start.y), 0)
 	
-	# max distance going at 45 degree angles
+	# max distance travelable going at 45 degree angles to map grid
 	d45 = math.sqrt(2)*min(v.x, v.y)
 	
-	# min distance going straight
+	# min distance going straight in either x or y
 	dS = math.fabs(v.x - v.y)
 	
 	return d45 + dS
 
-# Extracts way points to simplify path	
+# Extracts way points to simplify a path path represented as a list of Points	
 def extractWaypoints(path):
 	path.remove(path[0])	# Known bug: goal is in path twice
-	i = 0
-	while i + 2 < len(path):
-		
+	ptIndex = 0
+	while ptIndex + 2 < len(path):
 		# Check three points at a time
-		unitVec1 = unitVector(path[i]  , path[i+1])
-		unitVec2 = unitVector(path[i+1], path[i+2])
+		unitVec1 = unitVector(path[ptIndex]  , path[ptIndex+1])
+		unitVec2 = unitVector(path[ptIndex+1], path[ptIndex+2])
 		 
 		# If the unit vectors are identical, we can delete the middle point
 		if math.atan2(unitVec1.x, unitVec1.y) == math.atan2(unitVec2.x, unitVec2.y): 
-			path.remove(path[i+1])
+			path.remove(path[ptIndex+1])
 		else: #check next set of points
-		#	print "Failed to remove: " + str(i)
-			i += 1
-	
+			ptIndex += 1
 	return path

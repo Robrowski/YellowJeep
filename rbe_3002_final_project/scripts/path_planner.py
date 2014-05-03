@@ -27,6 +27,7 @@ def gotGoal(msg):
 			pub.sendToPath( path)
 			
 			waypoints = extractWaypoints(path)
+			waypoints.reverse() # put in correct order
 			if len(waypoints) > 1: # want to send SOMETHING
 				pub.sendToWaypoints( waypoints)	
 	
