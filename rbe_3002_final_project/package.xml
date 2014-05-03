@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<package>
+  	<name>rbe_3002_final_project</name>
+  	<version>7.69.42</version>
+  	<description>The package developed by Team Yellow Jeep for labs 3 and 4 as well as the RBE 3002 final project. </description>
+
+  	<maintainer email="YellowJeep@wpi.edu">Rob/Tim/Matt</maintainer>
+
+  	<license>RENO</license>
+
+	<url type="website">http://robrowski.github.io/YellowJeep/</url> 
+
+	<author email="rpdabrowski@wpi.edu">Robert Dabrowski</author>
+	<author email="tmmurcko@wpi.edu">Tim Murcko</author>
+	<author email="mscosti@wpi.edu">Matt Costi</author>
+
+
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+
+  
+  <run_depend>message_runtime</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>tf</run_depend>
+
+
+  <export>  
+    <!-- We didn't export anything -->
+
+  </export>
+</package>
