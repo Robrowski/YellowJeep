@@ -20,13 +20,13 @@ class MapHolster:
 	def __init__(self, mapTopicName = '/map_yellow'):
 		self.mapName = mapTopicName
 		# Default stuff
-		self.goal = Point(1,1,0)  # default
+		self.goal  = Point(1,1,0)  # default
 		self.start = Point(1,1,0) # default		
 		
 		# Automatic subscribers
-		rospy.Subscriber(mapTopicName,  OccupancyGrid, self.mapRecieved, queue_size=None)
-		rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, self.goalRecieved, queue_size=None)
-		rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=None)
+		rospy.Subscriber(mapTopicName,  OccupancyGrid, self.mapRecieved, queue_size=1)
+		rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, self.goalRecieved, queue_size=2)
+		rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, self.startRecieved, queue_size=2)
 		
 		# For keeping Updates on robot position
 		self.Jeep = JPS()

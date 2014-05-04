@@ -20,9 +20,6 @@ def gotGoal(msg):
 	
 	
 	try:
-# 		print globalMapHolster.start
-# 		print globalMapHolster.goal
-		
 		path =  astar(start, goal, globalMapHolster, globalMapHolster)
 		pub.sendToPath( path)
 		
@@ -35,6 +32,7 @@ def gotStart(msg):
 	global pub, start,globalMapHolster
 	print "Got start"
 	start = globalMapHolster.convertCellToPoint(msg.pose.pose.position)
+	print start
 	pub.clearTopics()
 
 	
@@ -45,9 +43,9 @@ if __name__ == '__main__':
 	global globalMapHolster
 	globalMapHolster = MapHolster('/map_yellow') 
 
-	start = Point(44,75,0)
+	start = Point( 55,55,0)
+
 	pub = YellowPublisher('/map_yellow')
-	
 	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal)
 	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart)
 

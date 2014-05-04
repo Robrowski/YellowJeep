@@ -101,8 +101,10 @@ def astar(start, goal, holster, costMap):
 	while frontier:
 		
 		# Raise an exception if the goal changes mid calculation
-		if goal != holster.goal:
-			# raise AStarException
+		if goal != holster.goal and holster.goal.x != 1 and holster.goal.y != 1:
+			print "Goal changed, aborting A*"
+			print goal
+			print holster.goal
 			return None
 		
 		#get the lowest node from the frontier to explore next
