@@ -1,6 +1,5 @@
 <launch>
 
-	<node pkg="rbe_3002_final_project" type="ObstacleExpansion.py" name="RealMapMaker" required="true" output="screen" args="/map"/>
 
 	
 	<node pkg="rbe_3002_final_project" type="astar_test.py" name="astar_test" required="true" output="screen"/>

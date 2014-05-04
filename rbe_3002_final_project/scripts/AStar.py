@@ -64,7 +64,6 @@ def calcHeuristic(current, goal,globalMapHolster,costMapHolster):
 		costOfCurrent = 0 # Set to zero to not make h(n) lower
 	
 	# newHeuristic is an optimized distance function to account for constraints
-# 	return distance(current,goal)
 	return PID*newHeuristic(current,goal)  + PIDprime*costOfCurrent
 
 
@@ -120,7 +119,7 @@ def astar(start, goal, holster, costMap):
 		frontier.remove(current)
 
 		#for animating, publish on every iteration
-		pub.sendToFrontier(frontier) # only need to see frontier to understand progress
+		#pub.sendToFrontier(frontier) # only need to see frontier to understand progress
 
 		##########################################################
 		### THE LAST VALUE PUT INTO THIS FUNCTION DETERMINES HOW 
@@ -159,12 +158,11 @@ def astar(start, goal, holster, costMap):
 				
 			g_score[neighbor] = min(temp_g, g_score[neighbor])
 			f_score[neighbor] = min(temp_f, f_score[neighbor])
-		#	print g_score[neighbor] 
-		#	print f_score[neighbor] 
+
 
 
 #	print "Nodes Expanded by A*: " + str( len(explored))
-	pub.sendToFrontier(frontier)
+		#pub.sendToFrontier(frontier)
 	if goal not in parents:
 		return None
 	path = reconstructPath(parents,start,goal)

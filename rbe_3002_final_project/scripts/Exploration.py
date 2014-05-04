@@ -11,10 +11,6 @@ from nav_msgs.msg import OccupancyGrid, Odometry
 from AStar 			 import  AStarException
 from kobuki_msgs.msg import BumperEvent
 
-
-
-
-
 # Takes a cluster (list) of points and returns the centroid
 def calculateCentroid(cluster):
 	global holster,obstacleTol
@@ -61,11 +57,18 @@ def hasOpenNeighbors(center):
 
 # Callback function to find unknowns
 def findUnknowns(aPoseWithCovarianceStamped):
-	global pub,holster, yellowPub, obstacleTol, robotPosition,sortedGoals
+	global pub,holster, yellowPub, obstacleTol, robotPosition,sortedGoals,nextGoal,prevGoal
 	
-	# TODO: Use actual robot position
-	robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
-#	robotPosition = holster.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
+	if aPoseWithCovarianceStamped == "notused":
+		try:
+			robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
+		except TypeError:
+			print "TF didn't work for Exploration node"
+			return "error"
+	else:
+		robotPosition = holster.convertCellToPoint(aPoseWithCovarianceStamped.pose.pose.position)
+
+	
 	print "Searching for unknowns from: " 
 	printPoint(robotPosition)
 	
@@ -119,11 +122,10 @@ def findUnknowns(aPoseWithCovarianceStamped):
 				frontClosed.append(pt)		
 			if len(cluster) > clusterSize:
 				newFrontiers.append(cluster)
-			#	yellowPub.sendToFrontier(cluster)  # Animation
 				goals.append(calculateCentroid(cluster))
 				yellowPub.sendToGoals( goals)
-	#	yellowPub.sendToFrontier(frontier)  # Animation
-	#	yellowPub.sendToExpanded(mapClosed) # Animation
+#		yellowPub.sendToFrontier(frontClosed)  # Animation
+#		yellowPub.sendToExpanded(mapClosed) # Animation
 	
 		# Adding points to queue
 		adjacentPoints = holster.getEightAdjacentPoints(current, None, tol = obstacleTol)
@@ -132,6 +134,15 @@ def findUnknowns(aPoseWithCovarianceStamped):
 				mapQ.append(pt)
 				
 		mapClosed.append(current)
+
+###################
+### Show all important frontiers
+	goodFrontiers = []
+	for f in newFrontiers:
+		goodFrontiers += f
+	
+	#yellowPub.sendToFrontier(goodFrontiers)
+
 
 ############################
 #### Sort Goals
@@ -146,46 +157,31 @@ def findUnknowns(aPoseWithCovarianceStamped):
 	while goalPriorityQ.qsize() > 0:
 		point = goalPriorityQ.get()[1]
 		sortedGoals.append(point)
-		#printPoint(point)
 
+	nextGoal = sortedGoals[0]
+	prevGoal = sortedGoals[0]
 	yellowPub.sendToGoals( sortedGoals)
 	return sortedGoals
 
-
+# sends a goal
 def sendGoal(notUsed):
 	global sortedGoals, pub, holster, nextGoal
 	
 	if len(sortedGoals) > 0:
-		# ptToSend = holster.convertPointsToCells([sortedGoals[0]])[0]
 		ptToSend = holster.convertPointsToCells([nextGoal])[0]
 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
-		print "\t\tGoal Sent!!!!!!!!!!!!!"
+		print "Goal Sent!!!!!!!!!!!!!"
 
-
+# Picks a new random goal on a timer
 def newRandomGoal(notUsed):
 	global sortedGoals, nextGoal, prevGoal, goalIndex
 
-	# if atGoal(nextGoal):
-	# 	if len(sortedGoals) != goalIndex + 1:
-	# 		nextGoal = sortedGoals[goalIndex + 1]
-	# 		goalIndex += 1
-	# 	else:
-	# 		nextGoal = random.choice(sortedGoals)
-	# 		while nextGoal != prevGoal:
-	# 			nextGoal = random.choice(sortedGoals)
-	# 		prevGoal = nextGoal
-	# if atGoal(nextGoal):
 	print "Generating random goal"
 	print "prevGoal: " + str(prevGoal.x) + str(prevGoal.y)
 	prevGoal = nextGoal
 	while nextGoal == prevGoal and len(sortedGoals) > 1:
 		nextGoal = random.choice(sortedGoals)
-		# print atGoal(nextGoal)
 
-	# while nextGoal != prevGoal:
-	# 	nextGoal = random.choice(sortedGoals)
-	# prevGoal = nextGoal
-		
 	print "Next Goal is: " + str(nextGoal.x) + str(nextGoal.y)
 
 
@@ -193,61 +189,14 @@ def newRandomGoal(notUsed):
 def atGoal(currentGoal):
 	global holster
 	robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
-	print robotPosition
-	# goalPt = holster.convertPointsToCells([currentGoal])[0]
-	print "Goal:" 
-	# print goalPt
-	print currentGoal
-	# print "position:"
-	# print robotPosition
+
 	if robotPosition == currentGoal:
 		return True
 	else:
 		return False
 
-# def sendGoalBetter(goal):
-# 	global sortedGoals, pub, holster
-	
-# 	if len(sortedGoals) > 0:
-# 		ptToSend = goal
-# 		pub.publish(  PoseStamped(Header(1,rospy.get_rostime(),'map'), Pose(ptToSend, None)))
-# 		# print "Goal Sent"
 
-# def THEPLAN():
-# 	global pub,holster, yellowPub, obstacleTol, sortedGoals
-
-
-# 	sortedGoals = findUnknowns("poop")
-# 	yellowPub.sendToGoals( sortedGoals)
-# 	prevGoal = None #sortedGoals[]
-# 	currentGoal = sortedGoals[0]
-# 	print currentGoal
-# 	atGoal = False
-# 	while True:
-
-# 		if currentGoal == prevGoal:
-# 			print "move to next goal"
-# 			currentGoal = sortedGoals[1]
-# 		sendGoalBetter(currentGoal)
-# 		while not atGoal:
-# 			robotPosition = holster.convertCellToPoint(holster.getCurrentPosition())
-# 			# print currentGoal
-# 			goalPt = holster.convertPointsToCells([currentGoal])[0]
-# 			# print "Goal:" 
-# 			# print goalPt
-# 			# print "position:"
-# 			# print robotPosition
-# 			if robotPosition == goalPt:
-# 				print "at goal"
-# 				findUnknowns("o")
-# 				prevGoal = goalPt
-# 				atGoal = True
-# 				yellowPub.sendToGonewRandomGoalals( sortedGoals)
-# 			# else:
-# 				# sendGoalBetter(currentGoal)
-
-# 		yellowPub.sendToGoals( sortedGoals)
-
+# if the bumper is pressed, pick a new random goal #YOLO
 def readBumper(msg):
 	if (msg.state == 1):
 		print "hump"
@@ -264,28 +213,25 @@ if __name__ == '__main__':
 
 	goalIndex = -1
 	
-	findUnknowns("notused")
-	nextGoal = sortedGoals[0]
-	prevGoal = sortedGoals[0]
-	# atGoal(nextGoal)
-	newRandomGoal("Notused")
-	# newRandomGoal("notused")
+	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns)
+	print "Ready to explore the map!"
 	
-	# sendGoal("notused")
-	# Call findUnknowns on a 45 second timer
-	rospy.Timer(rospy.Duration(45), findUnknowns)
-	# rospy.Subscriber('/map', OccupancyGrid, gotGoal, queue_size=None)
-	rospy.Timer(rospy.Duration(120), newRandomGoal)
-
-	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, findUnknowns, queue_size=None)
-	bumper_sub = rospy.Subscriber('mobile_base/events/bumper', BumperEvent, readBumper, queue_size=1) # Callback function to handle bumper events
-
+	
+	if findUnknowns("notused") != "error":
+		nextGoal = sortedGoals[0]
+		prevGoal = sortedGoals[0]
+		newRandomGoal("notused")
+		
+		# Call findUnknowns on a 45 second timer
+		rospy.Timer(rospy.Duration(45), findUnknowns)
+		rospy.Timer(rospy.Duration(120), newRandomGoal)
+	
+		bumper_sub = rospy.Subscriber('mobile_base/events/bumper', BumperEvent, readBumper, queue_size=1) 
+	
 	pub = rospy.Publisher('/move_base_simple/yellowgoal',  PoseStamped,latch=True)
 	rospy.Timer(rospy.Duration(30), sendGoal)
-	
-	print "Ready to explore the map!"
-
-	# THEPLAN()
+		
+		
 
 	rospy.spin()
 	

@@ -33,15 +33,15 @@ class JPS:
 		except tf.LookupException, e:
 			print "Orientation: LookupException"
 			print e
-			return None
+			return None,None
 		except tf.ExtrapolationException, e:
 			print "Orientation: ExtrapolationException"
 			print e
-			return None
+			return None,None
 		except 	tf.ConnectivityException, e:
 			print "Orientation: ConnectivityException"
 			print e
-			return None
+			return None,None
 
 	# Calculates the desired theta from the current robot positon to "next"
 	def calcDesiredTheta(self, nextPoint):

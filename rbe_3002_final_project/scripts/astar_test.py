@@ -15,18 +15,26 @@ def gotGoal(msg):
 	global pub, start, globalMapHolster
 	pub.clearTopics()
 	print "Got a goal from RVIZ!!"
+	goal = globalMapHolster.convertCellToPoint(msg.pose.position)
+	print goal
+	
 	
 	try:
-		path =  astar(globalMapHolster.start, globalMapHolster.goal, globalMapHolster, globalMapHolster)
+# 		print globalMapHolster.start
+# 		print globalMapHolster.goal
+		
+		path =  astar(start, goal, globalMapHolster, globalMapHolster)
 		pub.sendToPath( path)
 		
 		waypoints = extractWaypoints(path)
-		pub.sendToWaypoints( waypoints)	
+		pub.sendToWaypoints( waypoints)
 	except AStarException, e:
 		print "A* crashed: %s"%e
 		
 def gotStart(msg):
-	global pub, start
+	global pub, start,globalMapHolster
+	print "Got start"
+	start = globalMapHolster.convertCellToPoint(msg.pose.pose.position)
 	pub.clearTopics()
 
 	
@@ -37,11 +45,11 @@ if __name__ == '__main__':
 	global globalMapHolster
 	globalMapHolster = MapHolster('/map_yellow') 
 
-	start = Point(0,0,1)
+	start = Point(44,75,0)
 	pub = YellowPublisher('/map_yellow')
 	
-	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal, queue_size=None)
-	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart, queue_size=None)
+	rospy.Subscriber('/move_base_simple/yellowgoal',  PoseStamped, gotGoal)
+	rospy.Subscriber('/yellowinitialpose',  PoseWithCovarianceStamped, gotStart)
 
 	
 	print "Ready for RVIZ to set start and goal"
