@@ -23,7 +23,6 @@ def sendTwist(forwardVelocity, angularVelocity):
     cmdPub.publish(createTwist(forwardVelocity,angularVelocity))
 
 
-
 # Rotates the robot using gobal orientation measurements
 def rotate(desiredTheta):
 	global  robotPose, turningTolerance, rotationSpeed

@@ -6,7 +6,6 @@ from geometry_msgs.msg import Point
 def printPoint(pt):
 	print "X: " + str(pt.x) +"  Y: " + str(pt.y) 
 
-
 # Calculates the unit vector connecting two points
 def unitVector(origin, there):
 	magnitude = distance(origin, there)

@@ -117,8 +117,6 @@ def OptimizeOccupancyGrid(data):
   		for y in range(h):
    			expandedMap[y*w + x] = expandCell(x,y  )
   	 			
-	# Use the expanded obstacle map - comment this out if you want high res	
-	#newmap.data = expandedMap
 	
 	newMapPub.publish(newmap)
 

@@ -142,8 +142,6 @@ def findUnknowns(aPoseWithCovarianceStamped):
 		goodFrontiers += f
 	
 	#yellowPub.sendToFrontier(goodFrontiers)
-
-
 ############################
 #### Sort Goals
 	goalPriorityQ  =  q.PriorityQueue(len(goals))
