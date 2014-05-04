@@ -36,9 +36,9 @@ def rotate(desiredTheta):
 		rotateUpdate.sleep()
 
 
-
+## Main function is to follow a path, rotate the rest of hte time
 if __name__ == '__main__':
-	rospy.init_node('pathFollow', anonymous=True)
+	rospy.init_node('pathFollower', anonymous=True)
 	
 	global cmdPub, waypoints, holster, robotPose
 	cmdPub = rospy.Publisher('cmd_vel_mux/input/teleop', Twist)

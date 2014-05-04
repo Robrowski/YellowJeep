@@ -15,7 +15,6 @@ def handleCalculatePath(h):
 	start = h.start
 	goal = h.goal
 
-#	print "calculating a path"
 	# If None's are received, that is the signal to use the 
 	# start and goal cached in the MapHolster set by Rviz
 	if h.start == Point(0,0,0) or  h.goal == Point(0,0,0):
@@ -25,10 +24,8 @@ def handleCalculatePath(h):
 		
 	#use the robots actual position as the start	
 	if globalMapHolster.getCurrentPosition() != None: 
-		print "Using robot position as start of A*"
 		start = globalMapHolster.convertCellToPoint(globalMapHolster.getCurrentPosition())
-		
-	
+			
 	
 	path = astar(start,goal, globalMapHolster,costMapHolster)
 	return CalculatePathResponse(path)

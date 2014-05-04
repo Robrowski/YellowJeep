@@ -122,7 +122,7 @@ def OptimizeOccupancyGrid(data):
 	
 	newMapPub.publish(newmap)
 
-### TODO: make able to do 2 nodes
+# An argument must be passed into this node to dictate which map it recieves and processes
 if __name__ == '__main__':
 	MAPISCOMINGFROM = sys.argv[1] # assume one arg
 	rospy.init_node('ObstacleExpander_'  , anonymous=True)
@@ -132,8 +132,7 @@ if __name__ == '__main__':
 	
 	global newMapPub
 	newMapPub = rospy.Publisher(MAPISCOMINGFROM + "_yellow", OccupancyGrid, latch=True)
-
-	rospy.Subscriber(MAPISCOMINGFROM,  OccupancyGrid, OptimizeOccupancyGrid, queue_size=None)
+	rospy.Subscriber(MAPISCOMINGFROM,  OccupancyGrid, OptimizeOccupancyGrid)
 	
 	print "Ready to fix maps!"
 	rospy.spin()
