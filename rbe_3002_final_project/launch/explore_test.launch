@@ -1,6 +1,6 @@
 <launch>
 
-	<node pkg="lab3" type="Exploration.py" name="explore_test" required="true" output="screen"/>
+	<node pkg="rbe_3002_final_project" type="Exploration.py" name="explore_test" required="true" output="screen"/>
 
 
 </launch>

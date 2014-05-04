@@ -1,14 +1,14 @@
 <launch>
 
-	<node pkg="lab3" type="ObstacleExpansion.py" name="CostMapMaker" required="true" output="screen" args="/move_base/local_costmap/costmap"/>
+	<node pkg="rbe_3002_final_project" type="ObstacleExpansion.py" name="CostMapMaker" required="true" output="screen" args="/move_base/local_costmap/costmap"/>
 	<node pkg="lab3" type="ObstacleExpansion.py" name="RealMapMaker" required="true" output="screen" args="/map"/>
 
 	
-	<node pkg="lab3" type="path_planner.py" name="path_planner" required="true" output="screen"/>
-	<node pkg="lab3" type="PathPlanningService.py" name="path_service" required="true" output="screen"/>
-	<node pkg="lab3" type="robotDriveHandler.py" name="drive"  output="screen"  respawn="true"/>
+	<node pkg="rbe_3002_final_project" type="path_planner.py" name="path_planner" required="true" output="screen"/>
+	<node pkg="rbe_3002_final_project" type="PathPlanningService.py" name="path_service" required="true" output="screen"/>
+	<node pkg="rbe_3002_final_project" type="robotDriveHandler.py" name="drive"  output="screen"  respawn="true"/>
 	
-	<node pkg="lab3" type="Exploration.py" name="explore_test" required="true" output="screen"/>
+	<node pkg="rbe_3002_final_project" type="Exploration.py" name="explore_test" required="true" output="screen"/>
 	
 
 </launch>

@@ -1,0 +1,8 @@
+<launch>
+
+
+	<node pkg="rbe_3002_final_project" type="ObstacleExpansion.py" name="MapOptimizer" required="true" output="screen" args="/map"/>
+	
+
+</launch>
+
